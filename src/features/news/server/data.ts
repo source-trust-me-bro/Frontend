@@ -121,6 +121,7 @@ export function recordClick(
 // ---------------------------------------------------------------- community newsroom
 
 import {
+  clicksReportSchema,
   communitySchema,
   cycleStatusSchema,
   directorySchema,
@@ -156,6 +157,10 @@ export const getMyMessages = cache(() =>
 
 export function getNewsroomOverview() {
   return apiRequest("/newsroom/overview", newsroomOverviewSchema);
+}
+
+export function getClicksReport(days = 30) {
+  return apiRequest(`/clicks/report?days=${days}`, clicksReportSchema);
 }
 
 export function getCycleStatus() {

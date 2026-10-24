@@ -155,7 +155,7 @@ export async function LibraryView({
       />
       {items.length ? (
         <>
-          <StoryList articles={items} />
+          <StoryList articles={items} sponsored={false} />
           <Pager base={copy.base} page={page} pages={pages} />
         </>
       ) : (

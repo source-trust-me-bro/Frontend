@@ -400,7 +400,8 @@ export function LandingPage() {
                     <svg viewBox="0 0 16 16" aria-hidden="true">
                       <path className="hero__tick" d="M3 8.5l3 3 7-7" />
                     </svg>
-                    English · Suomi · Svenska
+                    Seven languages: English · Suomi · Svenska ·
+                    Davvisámegiella · Arabic · Ukrainian · Russian
                   </li>
                 </ul>
                 <div className="hero__actions">

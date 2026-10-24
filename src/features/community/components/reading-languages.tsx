@@ -34,8 +34,14 @@ export function ReadingLanguages({
   }
 
   return (
-    <fieldset className="dash-reading" disabled={pending}>
-      <legend className="dash-reading__title">I read in</legend>
+    <fieldset
+      className="dash-reading"
+      disabled={pending}
+      aria-labelledby="dash-reading-title"
+    >
+      <h2 className="dash-reading__title" id="dash-reading-title">
+        I read in
+      </h2>
       <label className="dash-reading__main">
         <span>Main language</span>
         <select

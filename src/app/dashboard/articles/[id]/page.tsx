@@ -188,7 +188,7 @@ async function Article({
         {related.length ? (
           <section className="dash-article__section">
             <h2>Related stories</h2>
-            <StoryList articles={related} />
+            <StoryList articles={related} sponsored={false} />
           </section>
         ) : null}
       </article>

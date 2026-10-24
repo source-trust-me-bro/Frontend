@@ -418,6 +418,7 @@ export const newsroomOverviewSchema = z.object({
     z.object({
       id: z.string(),
       name: z.string(),
+      outlet: z.string().nullish(),
       language: z.string(),
       feed_url: z.string().nullish(),
       official: z.boolean().default(false),
@@ -430,6 +431,45 @@ export const newsroomOverviewSchema = z.object({
   jobs: z.array(cycleStatusSchema),
 });
 export type NewsroomOverview = z.infer<typeof newsroomOverviewSchema>;
+
+// ------------------------------------------------------- editor click report
+
+const clickCountSchema = z.object({ users: z.number(), total: z.number() });
+const audienceRowSchema = z.object({
+  community_id: z.string().nullish(),
+  name: z.string(),
+  readers: z.number(),
+  clicks: z.number(),
+});
+
+export const clicksReportSchema = z.object({
+  days: z.number(),
+  readers: z.number(),
+  open: clickCountSchema,
+  outbound: clickCountSchema,
+  share: clickCountSchema,
+  communities: z.array(audienceRowSchema),
+  articles: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      source_name: z.string(),
+      url: z.string(),
+      language: z.string(),
+      written_for: z.string().nullish(),
+      topics: z.array(z.string()).default([]),
+      outlets: z.number().default(1),
+      open: clickCountSchema,
+      outbound: clickCountSchema,
+      share: clickCountSchema,
+      readers: z.number(),
+      last_click_at: z.string().nullish(),
+      audience: z.array(audienceRowSchema).default([]),
+      why: z.array(z.string()).default([]),
+    }),
+  ),
+});
+export type ClicksReport = z.infer<typeof clicksReportSchema>;
 
 // ------------------------------------------------- following, reactions and sharing
 

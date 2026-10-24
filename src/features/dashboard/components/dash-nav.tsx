@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import {
+  BarChart3,
   Bookmark,
   Clock,
   Flame,
@@ -13,6 +14,7 @@ import {
   LayoutGrid,
   LogOut,
   MessageSquare,
+  MousePointerClick,
   Newspaper,
   PenSquare,
   ShieldCheck,
@@ -60,7 +62,13 @@ export function DashNav({
     ...(showModerate
       ? [{ href: "/dashboard/community/moderate", label: "Moderate", icon: ShieldCheck }]
       : []),
-    ...(showEditor ? [{ href: "/editor", label: "Editor", icon: PenSquare }] : []),
+    ...(showEditor
+      ? [
+          { href: "/editor", label: "Editor", icon: PenSquare },
+          { href: "/stats", label: "Stats", icon: BarChart3 },
+          { href: "/clicks", label: "Clicks", icon: MousePointerClick },
+        ]
+      : []),
   ];
   const allGroups = staff.length ? [...groups, staff] : groups;
 
