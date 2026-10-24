@@ -214,6 +214,11 @@ const faqs = [
       "BBC News is the first source, with more added over time. We respect each source's terms, store article text only where permitted, and always link back to the original report.",
   },
   {
+    question: "Who pays for this, and does that affect what you report?",
+    answer:
+      "Employers, tourism companies, universities and public bodies pay for community channels, and grants support minority-language work. Readers in vulnerable positions are not asked to pay for essential information. Payers never choose stories, see drafts early or ask for changes, and a funding link to a story's subject is disclosed on that story. The full plan is on the funding page.",
+  },
+  {
     question: "Do I need an account?",
     answer:
       "Yes. A free account gives you a personalised feed, saved stories, reading history and the sources you follow, on every device.",
@@ -1350,6 +1355,11 @@ export function LandingPage() {
                   <li>
                     <a className="m-link-2" href="#setup">
                       Roadmap
+                    </a>
+                  </li>
+                  <li>
+                    <a className="m-link-2" href="/funding">
+                      How we are funded
                     </a>
                   </li>
                   <li>

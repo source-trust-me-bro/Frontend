@@ -374,6 +374,11 @@ const helpItems = [
       "Listen uses your browser's built-in speech engine, so it works offline and no audio leaves your device. Voices depend on your browser and operating system.",
   },
   {
+    question: "How is KalevaShorts paid for, and can funders influence stories?",
+    answer:
+      "Employers, universities, public bodies and grants pay for community channels. They never choose stories, see drafts early or ask for changes, and any funding link to a story's subject is shown on the story. Read the funding page for the full plan.",
+  },
+  {
     question: "Who can add sources and topics?",
     answer:
       "Editors and admins. They manage sources, topics and ingestion in the Editor workspace. Ask an admin if you need editor access.",

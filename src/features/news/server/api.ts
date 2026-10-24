@@ -23,6 +23,7 @@ export class ApiError extends Error {
 }
 
 type RequestOptions = {
+  timeoutMs?: number;
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   body?: unknown;
 };
@@ -70,7 +71,7 @@ export async function apiRequest<T>(
       },
       body: options.body ? JSON.stringify(options.body) : undefined,
       cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(options.timeoutMs ?? 10_000),
     });
   } catch {
     throw new ApiError(

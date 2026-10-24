@@ -50,3 +50,39 @@ export function getFollowingFeed(page: number) {
     pageSchema(articleSummarySchema),
   );
 }
+
+// ---------------------------------------------------------------- community newsroom
+
+import {
+  communitySchema,
+  cycleStatusSchema,
+  memberSchema,
+  myMessageSchema,
+  publicStorySchema,
+  reviewTaskSchema,
+} from "../schemas";
+
+export const getCommunities = cache(() =>
+  apiRequest("/newsroom/communities", z.array(communitySchema)),
+);
+
+export const getMember = cache(() => apiRequest("/newsroom/me", memberSchema));
+
+export function getCommunityFeed(communityId: string) {
+  return apiRequest(
+    `/newsroom/feed?community_id=${encodeURIComponent(communityId)}`,
+    z.array(publicStorySchema),
+  );
+}
+
+export const getMyMessages = cache(() =>
+  apiRequest("/newsroom/messages/mine", z.array(myMessageSchema)),
+);
+
+export function getCycleStatus() {
+  return apiRequest("/newsroom/cycle/latest", cycleStatusSchema);
+}
+
+export function getReviewQueue() {
+  return apiRequest("/newsroom/review-queue", z.array(reviewTaskSchema));
+}

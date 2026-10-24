@@ -199,3 +199,291 @@ export async function sendFeedback(
 
   return { status: "success", message: "Thanks. Your feedback was sent to the team." };
 }
+
+// ---------------------------------------------------------------- community newsroom
+
+import { messageKinds, triageSchema, type Triage } from "../schemas";
+
+export async function joinCommunity(
+  communityId: string,
+  language?: string,
+): Promise<ActionResult> {
+  return command("/newsroom/me/community", "PUT", {
+    community_id: idSchema.parse(communityId),
+    language: language || undefined,
+  });
+}
+
+export type ContributionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+  triage?: Triage;
+};
+
+const contributionSchema = z.object({
+  kind: z.enum(messageKinds),
+  text: z.string().trim().min(1).max(4000),
+  story_id: z.string().max(64).optional(),
+});
+
+/** A question, tip, piece of local knowledge, or a request for a correction. */
+export async function sendContribution(
+  _previous: ContributionState,
+  formData: FormData,
+): Promise<ContributionState> {
+  await requireUserId();
+
+  const parsed = contributionSchema.safeParse({
+    kind: formData.get("kind"),
+    text: formData.get("text"),
+    story_id: formData.get("story_id")?.toString() || undefined,
+  });
+
+  if (!parsed.success) {
+    return { status: "error", message: "Choose what you are sending and write a message." };
+  }
+
+  try {
+    const triage = await apiRequest("/newsroom/messages", triageSchema, {
+      method: "POST",
+      body: parsed.data,
+      timeoutMs: 120_000, // the model reads the message
+    });
+
+    revalidatePath("/dashboard/community");
+
+    return {
+      status: "success",
+      message: "Thank you. The newsroom received it.",
+      triage,
+    };
+  } catch (error) {
+    return { status: "error", message: errorMessage(error) };
+  }
+}
+
+const reviewSchema = z.object({
+  pitch_id: z.string().min(1).max(64),
+  role: z.enum([
+    "editor_in_chief",
+    "language_reviewer",
+    "community_reviewer",
+    "subject_expert",
+  ]),
+  decision: z.enum(["approve", "reject", "request_changes"]),
+  notes: z.string().max(2000).default(""),
+});
+
+/**
+ * The reviewer is the signed-in person: the API takes the name from the account and checks
+ * their rights. A refusal comes back as a message, never as a crashed page.
+ */
+export async function submitReview(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireUserId();
+
+  const parsed = reviewSchema.safeParse({
+    pitch_id: formData.get("pitch_id"),
+    role: formData.get("role"),
+    decision: formData.get("decision"),
+    notes: formData.get("notes")?.toString() ?? "",
+  });
+
+  if (!parsed.success) {
+    return { status: "error", message: "That decision was not understood. Reload and try again." };
+  }
+
+  if (parsed.data.decision === "request_changes" && !parsed.data.notes.trim()) {
+    return { status: "error", message: "Say what should change, so the agents can fix it." };
+  }
+
+  try {
+    await apiRequest(`/newsroom/review/${parsed.data.pitch_id}`, z.unknown(), {
+      timeoutMs: 150_000, // re-checking a story can call the model
+      method: "POST",
+      body: {
+        decisions: [
+          {
+            role: parsed.data.role,
+            decision: parsed.data.decision,
+            notes: parsed.data.notes,
+          },
+        ],
+      },
+    });
+  } catch (error) {
+    return { status: "error", message: errorMessage(error) };
+  }
+
+  revalidatePath("/editor");
+  revalidatePath("/dashboard/community");
+
+  return {
+    status: "success",
+    message:
+      parsed.data.decision === "approve"
+        ? "Recorded under your name."
+        : parsed.data.decision === "reject"
+          ? "Rejected."
+          : "Sent back to the agents with your notes.",
+  };
+}
+
+export async function runNewsroomCycle(): Promise<FormState> {
+  await requireUserId();
+
+  try {
+    await apiRequest("/newsroom/cycle", z.unknown(), { method: "POST", body: {} });
+  } catch (error) {
+    return { status: "error", message: errorMessage(error) };
+  }
+
+  revalidatePath("/editor");
+
+  return { status: "success", message: "The agents started a cycle." };
+}
+
+export async function stopNewsroomCycle(): Promise<FormState> {
+  await requireUserId();
+
+  try {
+    await apiRequest("/newsroom/cycle/stop", z.unknown(), { method: "POST" });
+  } catch (error) {
+    return { status: "error", message: errorMessage(error) };
+  }
+
+  revalidatePath("/editor");
+
+  return { status: "success", message: "Stopping. Whatever was collected stays saved." };
+}
+
+const sourceSchema = z.object({
+  story_id: z.string().min(1).max(64),
+  name: z.string().trim().min(1).max(200),
+  url: z.string().trim().url().max(2048),
+  official: z.boolean(),
+});
+
+/** Editors check the sources the agents attached and add more if they need to. */
+export async function addStorySource(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireUserId();
+
+  const parsed = sourceSchema.safeParse({
+    story_id: formData.get("story_id"),
+    name: formData.get("name"),
+    url: formData.get("url"),
+    official: formData.get("official") === "on",
+  });
+
+  if (!parsed.success) {
+    return { status: "error", message: "Give the source a name and a full web address." };
+  }
+
+  try {
+    await apiRequest(`/newsroom/stories/${parsed.data.story_id}/sources`, z.unknown(), {
+      method: "POST",
+      body: {
+        name: parsed.data.name,
+        url: parsed.data.url,
+        official: parsed.data.official,
+      },
+    });
+  } catch (error) {
+    return { status: "error", message: errorMessage(error) };
+  }
+
+  revalidatePath("/editor");
+
+  return { status: "success", message: "Source added." };
+}
+
+export type AccountHit = { id: string; display_name: string; email_hint: string };
+
+const accountHitSchema = z.object({
+  id: z.string(),
+  display_name: z.string(),
+  email_hint: z.string().default(""),
+});
+
+/** Editors and community admins find the person to appoint by name. */
+export async function searchAccounts(
+  query: string,
+): Promise<{ ok: true; accounts: AccountHit[] } | { ok: false; message: string }> {
+  await requireUserId();
+
+  const q = query.trim();
+
+  if (q.length < 2) {
+    return { ok: false, message: "Type at least two letters of the name." };
+  }
+
+  try {
+    const accounts = await apiRequest(
+      `/newsroom/staff/users?q=${encodeURIComponent(q)}`,
+      z.array(accountHitSchema),
+    );
+
+    return { ok: true, accounts };
+  } catch (error) {
+    return { ok: false, message: errorMessage(error) };
+  }
+}
+
+const appointSchema = z.object({
+  user_id: z.string().min(1).max(64),
+  community_id: z.string().max(64).optional(),
+  community_role: z.enum(["member", "moderator", "admin"]),
+  review_roles: z.array(
+    z.enum(["language_reviewer", "community_reviewer", "subject_expert"]),
+  ),
+  review_languages: z.array(z.string().min(1).max(12)).max(20),
+});
+
+/**
+ * Community admins and moderators are the community's trusted voices. The backend decides
+ * who may appoint whom: editors anyone in any community, a community admin only moderators
+ * in their own community.
+ */
+export async function appointCommunityRole(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  await requireUserId();
+
+  const parsed = appointSchema.safeParse({
+    user_id: formData.get("user_id"),
+    community_id: formData.get("community_id")?.toString() || undefined,
+    community_role: formData.get("community_role"),
+    review_roles: formData.getAll("review_roles").map(String),
+    review_languages: formData.getAll("review_languages").map(String),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", message: "Choose a person from the search results first." };
+  }
+
+  try {
+    await apiRequest("/newsroom/staff/community-role", z.unknown(), {
+      method: "POST",
+      body: parsed.data,
+    });
+  } catch (error) {
+    return { status: "error", message: errorMessage(error) };
+  }
+
+  revalidatePath("/dashboard/community/moderate");
+  revalidatePath("/editor");
+
+  return {
+    status: "success",
+    message:
+      parsed.data.community_role === "member"
+        ? "Their trusted-voice role was removed."
+        : "Saved. They can now review in the roles you gave them.",
+  };
+}

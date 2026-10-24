@@ -9,12 +9,14 @@ import {
   Download,
   Flame,
   Headphones,
+  HeartHandshake,
   HelpCircle,
   Home,
   LayoutGrid,
   LogOut,
   MessageSquare,
   PenSquare,
+  ShieldCheck,
   Settings,
   Users,
 } from "lucide-react";
@@ -30,6 +32,7 @@ type NavItem = {
 const groups: NavItem[][] = [
   [
     { href: "/dashboard", label: "Home", icon: Home, exact: true },
+    { href: "/dashboard/community", label: "Community", icon: HeartHandshake },
     { href: "/dashboard/audio", label: "Audio Books", icon: Headphones },
     { href: "/dashboard/saved", label: "Saved", icon: Bookmark },
     { href: "/dashboard/history", label: "Read History", icon: Clock },
@@ -47,11 +50,21 @@ const groups: NavItem[][] = [
   ],
 ];
 
-export function DashNav({ showEditor }: { showEditor: boolean }) {
+export function DashNav({
+  showEditor,
+  showModerate,
+}: {
+  showEditor: boolean;
+  showModerate: boolean;
+}) {
   const pathname = usePathname();
-  const allGroups = showEditor
-    ? [...groups, [{ href: "/editor", label: "Editor", icon: PenSquare }]]
-    : groups;
+  const staff: NavItem[] = [
+    ...(showModerate
+      ? [{ href: "/dashboard/community/moderate", label: "Moderate", icon: ShieldCheck }]
+      : []),
+    ...(showEditor ? [{ href: "/editor", label: "Editor", icon: PenSquare }] : []),
+  ];
+  const allGroups = staff.length ? [...groups, staff] : groups;
 
   return (
     <nav className="dash-nav" aria-label="Dashboard">

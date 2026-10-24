@@ -4,6 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 
 import { canEdit } from "@/features/news/schemas";
 import { attempt, getProfile, requireUserId } from "@/features/news/server/api";
+import { getMember } from "@/features/news/server/data";
 
 import { DashAside } from "./dash-aside";
 import { DashBrand, DashNav, DashSignOut } from "./dash-nav";
@@ -17,20 +18,31 @@ export function ErrorPanel({ message }: { message: string }) {
   );
 }
 
-export function DashboardSkeleton() {
+export function DashboardSkeleton({ showAside = true }: { showAside?: boolean }) {
   return (
     <div className="dash-page">
-      <div className="dash-app" aria-hidden="true">
+      <div
+        className={`dash-app${showAside ? "" : " dash-app--no-aside"}`}
+        aria-hidden="true"
+      >
         <div className="dash-skeleton dash-skeleton--sidebar"></div>
         <div className="dash-skeleton dash-skeleton--main"></div>
-        <div className="dash-skeleton dash-skeleton--aside"></div>
+        {showAside ? <div className="dash-skeleton dash-skeleton--aside"></div> : null}
       </div>
     </div>
   );
 }
 
 /** Verifies the Clerk session, loads the FastAPI profile and renders the chrome. */
-export async function DashboardShell({ children }: { children: ReactNode }) {
+export async function DashboardShell({
+  children,
+  showAside = true,
+  wide = false,
+}: {
+  children: ReactNode;
+  showAside?: boolean;
+  wide?: boolean;
+}) {
   await requireUserId();
 
   const result = await attempt(getProfile);
@@ -47,6 +59,9 @@ export async function DashboardShell({ children }: { children: ReactNode }) {
 
   const profile = result.data;
 
+  const member = await getMember().catch(() => null);
+  const showModerate =
+    member?.community_role === "moderator" || member?.community_role === "admin";
   const clerkUser = await currentUser().catch(() => null);
   const name =
     profile.display_name ||
@@ -61,7 +76,7 @@ export async function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="dash-page">
-      <div className="dash-app">
+      <div className={`dash-app${showAside ? "" : " dash-app--no-aside"}`}>
         <aside className="dash-sidebar">
           <DashBrand />
           <div className="dash-user">
@@ -84,17 +99,23 @@ export async function DashboardShell({ children }: { children: ReactNode }) {
             </div>
             <span className="dash-user__role">{role}</span>
           </div>
-          <DashNav showEditor={canEdit(profile)} />
+          <DashNav showEditor={canEdit(profile)} showModerate={showModerate} />
           <DashSignOut />
         </aside>
         <main className="dash-main">
           <div className="dash-body">
-            <div className="dash-body__inner">{children}</div>
+            <div
+              className={`dash-body__inner${wide ? " dash-body__inner--wide" : ""}`}
+            >
+              {children}
+            </div>
           </div>
         </main>
-        <Suspense fallback={null}>
-          <DashAside />
-        </Suspense>
+        {showAside ? (
+          <Suspense fallback={null}>
+            <DashAside />
+          </Suspense>
+        ) : null}
       </div>
     </div>
   );
