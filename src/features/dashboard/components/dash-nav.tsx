@@ -6,15 +6,14 @@ import { useClerk } from "@clerk/nextjs";
 import {
   Bookmark,
   Clock,
-  Download,
   Flame,
-  Headphones,
   HeartHandshake,
   HelpCircle,
   Home,
   LayoutGrid,
   LogOut,
   MessageSquare,
+  Newspaper,
   PenSquare,
   ShieldCheck,
   Settings,
@@ -32,11 +31,10 @@ type NavItem = {
 const groups: NavItem[][] = [
   [
     { href: "/dashboard", label: "Home", icon: Home, exact: true },
+    { href: "/dashboard/newsroom", label: "Newsroom", icon: Newspaper },
     { href: "/dashboard/community", label: "Community", icon: HeartHandshake },
-    { href: "/dashboard/audio", label: "Audio Books", icon: Headphones },
     { href: "/dashboard/saved", label: "Saved", icon: Bookmark },
     { href: "/dashboard/history", label: "Read History", icon: Clock },
-    { href: "/dashboard/downloaded", label: "Downloaded", icon: Download },
   ],
   [
     { href: "/dashboard/trending", label: "Now Trending", icon: Flame },

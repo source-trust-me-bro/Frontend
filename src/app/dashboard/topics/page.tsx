@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { z } from "zod";
 
-import {
-  DashboardShell,
-  DashboardSkeleton,
-  ErrorPanel,
-} from "@/features/dashboard/components/dashboard-shell";
+import { ErrorPanel } from "@/features/dashboard/components/dashboard-shell";
 import { topicNodeSchema, type TopicNode } from "@/features/news/schemas";
 import { apiRequest, attempt } from "@/features/news/server/api";
 
@@ -20,11 +15,7 @@ export const instant = false;
 
 export default function TopicsPage() {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardShell>
-        <Topics />
-      </DashboardShell>
-    </Suspense>
+    <Topics />
   );
 }
 
@@ -73,8 +64,11 @@ async function Topics() {
         <TopicBranch nodes={topics} />
       ) : (
         <div className="dash-empty">
-          <h2>No topics yet</h2>
-          <p>Editors create topics in the editor workspace.</p>
+          <h2>There are no topics yet</h2>
+          <p>
+            The newsroom&apos;s agents make topics themselves as news comes in, and they appear
+            here as soon as the first ones exist. Nothing is wrong with your account.
+          </p>
         </div>
       )}
     </div>

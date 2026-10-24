@@ -1,30 +1,18 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import {
-  FolderTree,
-  MessageSquare,
-  RefreshCw,
-  Rss,
-} from "lucide-react";
-import { z } from "zod";
+import { FolderTree, RefreshCw, Rss } from "lucide-react";
 
+import { canEdit } from "@/features/news/schemas";
 import {
-  canEdit,
-  feedbackSchema,
-  flattenTopics,
-  ingestionJobSchema,
-  pageSchema,
-  sourceSchema,
-  topicNodeSchema,
-} from "@/features/news/schemas";
-import {
-  apiRequest,
   attempt,
   getProfile,
   requireUserId,
 } from "@/features/news/server/api";
-import { runIngestion } from "@/features/news/server/actions";
+import { linkTopics } from "@/features/news/server/actions";
+import { getNewsroomOverview } from "@/features/news/server/data";
+import { DeskForm } from "@/features/community/components/desk-form";
+import { EditorAside } from "@/features/community/components/editor-aside";
 import { EditorDesk } from "@/features/community/components/editor-desk";
 import {
   DashboardShell,
@@ -41,8 +29,8 @@ export const instant = false;
 
 export default function EditorPage() {
   return (
-    <Suspense fallback={<DashboardSkeleton showAside={false} />}>
-      <DashboardShell showAside={false} wide>
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardShell wide aside={<EditorAside />}>
         <EditorGate />
       </DashboardShell>
     </Suspense>
@@ -96,29 +84,22 @@ function Notice({ title, body }: { title: string; body: string }) {
 }
 
 async function EditorWorkspace() {
-  const result = await attempt(async () => {
-    const [sources, topics, jobs, feedback] = await Promise.all([
-      apiRequest("/sources?page_size=100", pageSchema(sourceSchema)),
-      apiRequest("/topics/tree", z.array(topicNodeSchema)),
-      apiRequest("/ingestion/jobs?page_size=10", pageSchema(ingestionJobSchema)),
-      apiRequest("/feedback?page_size=10", pageSchema(feedbackSchema)),
-    ]);
-
-    return { sources, topics: flattenTopics(topics), jobs, feedback };
-  });
+  const result = await attempt(getNewsroomOverview);
 
   if (!result.ok) {
     return <Notice title="Could not load the workspace" body={result.message} />;
   }
 
-  const { sources, topics, jobs, feedback } = result.data;
-  const sourceNames = new Map(sources.items.map((item) => [item.id, item.name]));
+  const { articles, sources, topics, jobs } = result.data;
+  const topicNames = new Map(topics.map((topic) => [topic.id, topic.name]));
+  // Branches are symmetric, so every link appears on both of its topics.
+  const links = topics.reduce((sum, topic) => sum + topic.branches.length, 0) / 2;
 
   return (
     <div className="dash-view">
       <ViewHeader
-        title="Sources, topics and ingestion"
-        sub="Running a job collects the latest stories from a source and adds the new ones to the feed."
+        title="Sources, topics and newsroom runs"
+        sub="The agents read these feeds when you run a newsroom cycle, sort what they find into the topic tree and write the stories below."
       />
 
       <ul className="dash-ed-stats">
@@ -129,18 +110,13 @@ async function EditorWorkspace() {
         </li>
         <li className="dash-ed-stat">
           <Rss className="dash-ed-stat__icon" aria-hidden="true" />
-          <strong>{sources.total}</strong>
-          <span>News sources</span>
+          <strong>{articles}</strong>
+          <span>Articles collected</span>
         </li>
         <li className="dash-ed-stat">
           <RefreshCw className="dash-ed-stat__icon" aria-hidden="true" />
-          <strong>{jobs.items.length}</strong>
-          <span>Recent jobs</span>
-        </li>
-        <li className="dash-ed-stat">
-          <MessageSquare className="dash-ed-stat__icon" aria-hidden="true" />
-          <strong>{feedback.total}</strong>
-          <span>Reader feedback</span>
+          <strong>{jobs.length}</strong>
+          <span>Recent cycles</span>
         </li>
       </ul>
 
@@ -148,7 +124,14 @@ async function EditorWorkspace() {
         <section className="dash-ed-panel">
           <div className="dash-ed-panel__head">
             <h2 className="dash-ed-panel__title">Topic tree</h2>
-            <span className="dash-chip">{topics.length} topics</span>
+            <span className="dash-chip">
+              {topics.length} topics · {links} links
+            </span>
+            <DeskForm action={linkTopics}>
+              <button className="dash-ed-btn" type="submit">
+                Link related topics
+              </button>
+            </DeskForm>
           </div>
           {topics.length ? (
             <ul className="dash-ed-list">
@@ -160,8 +143,18 @@ async function EditorWorkspace() {
                 >
                   <span className="dash-ed-topic__name">{topic.name}</span>
                   <span className="dash-ed-topic__lang">
-                    {topic.language.toUpperCase()}
+                    {topic.events} {topic.events === 1 ? "event" : "events"}
+                    {topic.proposed ? " · proposed" : ""}
                   </span>
+                  {topic.branches.length ? (
+                    <span className="dash-ed-topic__branches">
+                      Linked to:{" "}
+                      {topic.branches
+                        .map((id) => topicNames.get(id))
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>
@@ -174,29 +167,29 @@ async function EditorWorkspace() {
           <section className="dash-ed-panel">
             <div className="dash-ed-panel__head">
               <h2 className="dash-ed-panel__title">News sources</h2>
-              <span className="dash-chip">{sources.total}</span>
+              <span className="dash-chip">{sources.length}</span>
             </div>
-            {sources.items.length ? (
-              <ul className="dash-ed-list">
-                {sources.items.map((source) => (
-                  <li key={source.id}>
-                    <form className="dash-ed-source" action={runIngestion}>
-                      <input type="hidden" name="source_id" value={source.id} />
-                      <span className="dash-ed-source__body">
-                        <strong>{source.name}</strong>
-                        <span className="dash-ed-source__meta">
-                          {source.language.toUpperCase()}
-                          {source.active ? "" : " · inactive"} · {source.feed_url}
-                        </span>
+            {sources.length ? (
+              <ul className="dash-src-list">
+                {sources.map((source) => (
+                  <li className="dash-src" data-off={source.enabled ? undefined : ""} key={source.id}>
+                    <span className="dash-src__name" title={source.name}>
+                      {source.name}
+                    </span>
+                    <span className="dash-src__lang">{source.language.toUpperCase()}</span>
+                    {source.official ? <span className="dash-src__tag">official</span> : null}
+                    {source.headline_only ? (
+                      <span className="dash-src__tag" title="Only the headline and link are used">
+                        headline only
                       </span>
-                      <button
-                        className="dash-ed-btn dash-ed-btn--primary"
-                        type="submit"
-                        disabled={!source.active}
-                      >
-                        Run ingestion
-                      </button>
-                    </form>
+                    ) : null}
+                    {source.enabled ? null : <span className="dash-src__tag dash-src__tag--off">off</span>}
+                    <span
+                      className="dash-src__count"
+                      title={`${source.articles} ${source.articles === 1 ? "article" : "articles"} read`}
+                    >
+                      {source.articles}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -207,54 +200,38 @@ async function EditorWorkspace() {
 
           <section className="dash-ed-panel dash-ed-panel--navy">
             <div className="dash-ed-panel__head">
-              <h2 className="dash-ed-panel__title">Recent jobs</h2>
+              <h2 className="dash-ed-panel__title">Recent cycles</h2>
             </div>
-            {jobs.items.length ? (
+            {jobs.length ? (
               <ul className="dash-ed-list">
-                {jobs.items.map((job) => (
-                  <li className="dash-ed-job" key={job.id}>
+                {jobs.map((job) => (
+                  <li className="dash-ed-job" key={job.started_at}>
                     <strong>
-                      {sourceNames.get(job.source_id) ?? "Removed source"}
+                      {job.started_at
+                        ? new Intl.DateTimeFormat("en-FI", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                            timeZone: "Europe/Helsinki",
+                          }).format(new Date(job.started_at))
+                        : "Cycle"}
                       <span className="dash-ed-status">{job.status}</span>
                     </strong>
                     <span>
-                      {job.stats.created} new · {job.stats.skipped} skipped ·{" "}
-                      {job.stats.failed} failed
-                      {job.error ? ` · ${job.error}` : ""}
+                      {job.summary
+                        ? `${job.summary.articles_processed} articles read · ${job.summary.events} events · ${job.summary.pitches} stories prepared${job.summary.stopped_reason ? ` · stopped (${job.summary.stopped_reason})` : ""}`
+                        : (job.error ?? "")}
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="dash-ed-note">No jobs have run yet.</p>
+              <p className="dash-ed-note">No cycle has run since the service started.</p>
             )}
           </section>
         </div>
       </div>
 
       <EditorDesk />
-
-      <section className="dash-ed-panel">
-        <div className="dash-ed-panel__head">
-          <h2 className="dash-ed-panel__title">Reader feedback</h2>
-          <span className="dash-chip">{feedback.total}</span>
-        </div>
-        {feedback.items.length ? (
-          <ul className="dash-ed-rows">
-            {feedback.items.map((item) => (
-              <li className="dash-ed-row" key={item.id}>
-                <strong>
-                  {item.subject || "No subject"} ·{" "}
-                  {item.display_name || item.email || "Reader"}
-                </strong>
-                <span>{item.message}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="dash-ed-note">No feedback yet.</p>
-        )}
-      </section>
     </div>
   );
 }

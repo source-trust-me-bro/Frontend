@@ -67,6 +67,8 @@ export async function Feed({
     if (searching) {
       if (q) query.set("q", q);
       if (topic) query.set("topic_id", topic);
+      // Search the reader's language only, like the feed: one language collection, not all.
+      query.set("language", profile.preferred_language);
       articlesRequest = apiRequest(
         `/articles?${query}`,
         pageSchema(articleSummarySchema),
@@ -74,7 +76,7 @@ export async function Feed({
     } else if (tab === "following") {
       articlesRequest = getFollowingFeed(page);
     } else if (tab === "trending") {
-      articlesRequest = getTrending(20).then((items) => ({
+      articlesRequest = getTrending(20, profile.preferred_language).then((items) => ({
         items,
         total: items.length,
         page: 1,
@@ -191,8 +193,8 @@ export async function Feed({
             {filtered
               ? "Try a different search or clear the filters."
               : canEdit(profile)
-                ? "Add a news source in the editor workspace and run an ingestion job."
-                : "Stories will appear here once editors ingest news sources."}
+                ? "Run a newsroom cycle in the editor workspace, then publish a story to the dashboard."
+                : "Stories appear here as soon as an editor publishes them."}
           </p>
           {canEdit(profile) && !filtered && tab === "for-you" ? (
             <Link className="dash-primary" href="/editor">

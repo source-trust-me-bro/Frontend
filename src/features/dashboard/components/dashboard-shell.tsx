@@ -38,14 +38,21 @@ export async function DashboardShell({
   children,
   showAside = true,
   wide = false,
+  aside,
 }: {
   children: ReactNode;
   showAside?: boolean;
   wide?: boolean;
+  aside?: ReactNode;
 }) {
   await requireUserId();
 
-  const result = await attempt(getProfile);
+  // Three independent lookups: run them side by side instead of one after another.
+  const [result, member, clerkUser] = await Promise.all([
+    attempt(getProfile),
+    getMember().catch(() => null),
+    currentUser().catch(() => null),
+  ]);
 
   if (!result.ok) {
     return (
@@ -58,11 +65,13 @@ export async function DashboardShell({
   }
 
   const profile = result.data;
+  const hasAside = showAside || Boolean(aside);
+  const appClass = `dash-app${hasAside ? "" : " dash-app--no-aside"}${
+    aside ? " dash-app--custom-aside" : ""
+  }`;
 
-  const member = await getMember().catch(() => null);
   const showModerate =
     member?.community_role === "moderator" || member?.community_role === "admin";
-  const clerkUser = await currentUser().catch(() => null);
   const name =
     profile.display_name ||
     clerkUser?.fullName ||
@@ -76,7 +85,7 @@ export async function DashboardShell({
 
   return (
     <div className="dash-page">
-      <div className={`dash-app${showAside ? "" : " dash-app--no-aside"}`}>
+      <div className={appClass}>
         <aside className="dash-sidebar">
           <DashBrand />
           <div className="dash-user">
@@ -111,10 +120,8 @@ export async function DashboardShell({
             </div>
           </div>
         </main>
-        {showAside ? (
-          <Suspense fallback={null}>
-            <DashAside />
-          </Suspense>
+        {hasAside ? (
+          <Suspense fallback={null}>{aside ?? <DashAside />}</Suspense>
         ) : null}
       </div>
     </div>

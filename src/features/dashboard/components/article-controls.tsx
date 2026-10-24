@@ -4,43 +4,27 @@ import { useEffect, useOptimistic, useState, useTransition } from "react";
 import {
   Bookmark,
   Check,
-  Download,
-  Headphones,
-  Pause,
   Plus,
   Trash2,
 } from "lucide-react";
 
 import {
-  clearDownloads,
   clearHistory,
   recordRead,
-  setDownloaded,
   setFollowingSource,
   setSaved,
   type ActionResult,
 } from "@/features/news/server/actions";
 
-type ToggleKind = "saved" | "downloaded" | "follow";
+type ToggleKind = "saved" | "follow";
 
 const toggles: Record<
   ToggleKind,
   (id: string, value: boolean) => Promise<ActionResult>
 > = {
   saved: setSaved,
-  downloaded: setDownloaded,
   follow: setFollowingSource,
 };
-
-function saveTextFile(name: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = name;
-  link.click();
-  URL.revokeObjectURL(url);
-}
 
 function Toggle({
   kind,
@@ -48,14 +32,12 @@ function Toggle({
   value,
   className,
   children,
-  download,
 }: {
   kind: ToggleKind;
   targetId: string;
   value: boolean;
   className: string;
   children: (on: boolean) => React.ReactNode;
-  download?: { name: string; text: string };
 }) {
   const [on, setOn] = useOptimistic(value);
   const [pending, startTransition] = useTransition();
@@ -81,10 +63,6 @@ function Toggle({
               setError(result.message ?? "That did not work.");
               return;
             }
-
-            if (next && download) {
-              saveTextFile(download.name, download.text);
-            }
           });
         }}
       >
@@ -103,10 +81,13 @@ export function SaveButton({
   articleId,
   saved,
   withLabel = false,
+  labels = ["Save", "Saved"],
 }: {
   articleId: string;
   saved: boolean;
   withLabel?: boolean;
+  /** Visible text when not saved and when saved. */
+  labels?: [string, string];
 }) {
   return (
     <Toggle
@@ -122,37 +103,8 @@ export function SaveButton({
             aria-hidden="true"
             fill={on ? "currentColor" : "none"}
           />
-          {withLabel ? <span>{on ? "Saved" : "Save"}</span> : null}
+          {withLabel ? <span>{on ? labels[1] : labels[0]}</span> : null}
           <span className="dash-sr">{on ? "Remove bookmark" : "Save story"}</span>
-        </>
-      )}
-    </Toggle>
-  );
-}
-
-export function DownloadButton({
-  articleId,
-  downloaded,
-  fileName,
-  fileText,
-}: {
-  articleId: string;
-  downloaded: boolean;
-  fileName: string;
-  fileText: string;
-}) {
-  return (
-    <Toggle
-      kind="downloaded"
-      targetId={articleId}
-      value={downloaded}
-      className="dash-secondary"
-      download={{ name: fileName, text: fileText }}
-    >
-      {(on) => (
-        <>
-          <Download className="dash-icon" aria-hidden="true" />
-          <span>{on ? "Downloaded" : "Download"}</span>
         </>
       )}
     </Toggle>
@@ -190,86 +142,6 @@ export function FollowButton({
   );
 }
 
-let activeSpeechId: string | null = null;
-
-export function ListenButton({
-  id,
-  text,
-  language = "en",
-}: {
-  id: string;
-  text: string;
-  language?: string;
-}) {
-  const [playing, setPlaying] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(
-    () => () => {
-      if (activeSpeechId === id && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-        activeSpeechId = null;
-      }
-    },
-    [id],
-  );
-
-  const toggle = () => {
-    if (!("speechSynthesis" in window)) {
-      setError("Speech playback is not supported in this browser.");
-      return;
-    }
-
-    if (playing) {
-      window.speechSynthesis.cancel();
-      activeSpeechId = null;
-      setPlaying(false);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-
-    utterance.lang = language;
-    utterance.onend = () => {
-      activeSpeechId = null;
-      setPlaying(false);
-    };
-    utterance.onerror = () => {
-      activeSpeechId = null;
-      setPlaying(false);
-    };
-    activeSpeechId = id;
-    setError("");
-    setPlaying(true);
-    window.speechSynthesis.speak(utterance);
-  };
-
-  return (
-    <>
-      <button
-        className={`dash-secondary${playing ? " is-on" : ""}`}
-        type="button"
-        aria-pressed={playing}
-        onClick={toggle}
-      >
-        {playing ? (
-          <Pause className="dash-icon" aria-hidden="true" />
-        ) : (
-          <Headphones className="dash-icon" aria-hidden="true" />
-        )}
-        <span>{playing ? "Stop" : "Listen"}</span>
-      </button>
-      {error ? (
-        <span className="dash-status dash-status--error" role="alert">
-          {error}
-        </span>
-      ) : null}
-    </>
-  );
-}
-
 const recorded = new Set<string>();
 
 /** Adds the story to the reader's history once per page view. */
@@ -286,13 +158,7 @@ export function ReadTracker({ articleId }: { articleId: string }) {
   return null;
 }
 
-export function ClearButton({
-  kind,
-  label,
-}: {
-  kind: "history" | "downloads";
-  label: string;
-}) {
+export function ClearButton({ label }: { label: string }) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -302,7 +168,7 @@ export function ClearButton({
       disabled={pending}
       onClick={() =>
         startTransition(async () => {
-          await (kind === "history" ? clearHistory() : clearDownloads());
+          await clearHistory();
         })
       }
     >

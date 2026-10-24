@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { z } from "zod";
 
-import {
-  DashboardShell,
-  DashboardSkeleton,
-  ErrorPanel,
-} from "@/features/dashboard/components/dashboard-shell";
+import { ErrorPanel } from "@/features/dashboard/components/dashboard-shell";
 import { SettingsForm } from "@/features/dashboard/components/settings-form";
 import { flattenTopics, topicNodeSchema } from "@/features/news/schemas";
 import { apiRequest, attempt, getProfile } from "@/features/news/server/api";
@@ -20,11 +15,7 @@ export const instant = false;
 
 export default function SettingsPage() {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardShell>
-        <Settings />
-      </DashboardShell>
-    </Suspense>
+    <Settings />
   );
 }
 

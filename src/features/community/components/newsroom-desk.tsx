@@ -2,6 +2,7 @@ import { attempt } from "@/features/news/server/api";
 import { getCycleStatus, getReviewQueue } from "@/features/news/server/data";
 
 import { AutoRefresh } from "./auto-refresh";
+import { CycleProgressPanel } from "./cycle-progress";
 import { DeskForm } from "./desk-form";
 import {
   addStorySource,
@@ -52,7 +53,15 @@ export async function NewsroomDesk({
         <h2 className="dash-ed-panel__title">{title}</h2>
         {isEditor ? (
           <>
-            <DeskForm action={runNewsroomCycle}>
+            <DeskForm action={runNewsroomCycle} className="dash-ed-inline">
+              <label className="dash-ed-label" htmlFor="news-count">
+                How many news
+              </label>
+              <select id="news-count" name="news_count" defaultValue="10">
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
               <button className="dash-ed-btn" type="submit">
                 {running ? "Cycle running…" : "Run a newsroom cycle"}
               </button>
@@ -67,11 +76,13 @@ export async function NewsroomDesk({
           </>
         ) : null}
       </div>
-      <AutoRefresh active={running} />
-      {cycle?.ok && cycle.data.status !== "idle" ? (
+      <AutoRefresh active={running} everyMs={3000} />
+      {cycle?.ok && cycle.data.progress && (cycle.data.progress.running || cycle.data.progress.outcome) ? (
+        <CycleProgressPanel progress={cycle.data.progress} />
+      ) : cycle?.ok && cycle.data.status !== "idle" ? (
         <p className="dash-ed-note" role="status">
           {cycle.data.status === "running"
-            ? "A cycle is running. With Gemini this takes a few minutes. This page updates itself."
+            ? "A cycle is running. This page updates itself."
             : cycle.data.status === "done"
               ? `Last cycle ${cycle.data.summary?.stopped_reason ? `stopped (${cycle.data.summary.stopped_reason})` : "finished"}: ${cycle.data.summary?.articles_processed ?? 0} articles read, ${cycle.data.summary?.pitches ?? 0} stories prepared${cycle.data.summary?.articles_deferred ? `, ${cycle.data.summary.articles_deferred} saved for the next cycle` : ""}.`
               : `The last cycle failed: ${cycle.data.error ?? "unknown error"}`}
@@ -159,11 +170,6 @@ export async function NewsroomDesk({
                     Blocked by: {task.blocking_checks.join("; ")}
                   </p>
                 ) : null}
-                {task.context_needing_a_human.length ? (
-                  <p className="dash-ed-warn">
-                    Needs a human: {task.context_needing_a_human.join("; ")}
-                  </p>
-                ) : null}
                 <p className="dash-ed-label">
                   Still needed:{" "}
                   {task.missing_roles.map((role) => roleLabels[role] ?? role).join(", ") ||
@@ -196,6 +202,19 @@ export async function NewsroomDesk({
                         </span>
                       ) : null}
                       <input name="notes" placeholder="Notes (needed when asking for changes)" />
+                      {role === "editor_in_chief" ? (
+                        <fieldset className="dash-ed-where">
+                          <legend className="dash-ed-label">Publish to</legend>
+                          <label>
+                            <input type="checkbox" name="destinations" value="dashboard" defaultChecked />{" "}
+                            Dashboard
+                          </label>
+                          <label>
+                            <input type="checkbox" name="destinations" value="community" defaultChecked />{" "}
+                            Community page
+                          </label>
+                        </fieldset>
+                      ) : null}
                       <button
                         className="dash-ed-btn dash-ed-btn--primary"
                         type="submit"

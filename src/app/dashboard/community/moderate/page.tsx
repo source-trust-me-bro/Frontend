@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 
 import { AppointModeratorForm } from "@/features/community/components/appoint-moderator-form";
 import { NewsroomDesk } from "@/features/community/components/newsroom-desk";
-import {
-  DashboardShell,
-  DashboardSkeleton,
-  ErrorPanel,
-} from "@/features/dashboard/components/dashboard-shell";
+import { ErrorPanel } from "@/features/dashboard/components/dashboard-shell";
 import { ViewHeader } from "@/features/dashboard/components/views";
 import { canEdit } from "@/features/news/schemas";
 import { attempt, getProfile } from "@/features/news/server/api";
@@ -22,11 +17,7 @@ export const instant = false;
 
 export default function ModeratePage() {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardShell>
-        <Moderate />
-      </DashboardShell>
-    </Suspense>
+    <Moderate />
   );
 }
 

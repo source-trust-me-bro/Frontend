@@ -14,7 +14,7 @@ import { FollowButton } from "./article-controls";
 export async function DashAside() {
   const result = await attempt(async () => {
     const [picks, topics, sources, profile] = await Promise.all([
-      getTrending(5),
+      getProfile().then((reader) => getTrending(5, reader.preferred_language)),
       getTopicTree(),
       getSources(),
       getProfile(),

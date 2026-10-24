@@ -83,10 +83,16 @@ export type ActionResult = { ok: boolean; message?: string };
 
 const idSchema = z.string().min(1).max(64);
 
+/**
+ * Runs a write on the API. ``refresh`` lists the pages that show the result and must be read
+ * again. A toggle already updates its own button, so by default nothing is refreshed: the whole
+ * dashboard is never re-rendered for one click.
+ */
 async function command(
   path: string,
   method: "PUT" | "POST" | "DELETE",
   body?: unknown,
+  refresh: string[] = [],
 ): Promise<ActionResult> {
   await requireUserId();
 
@@ -96,7 +102,9 @@ async function command(
     return { ok: false, message: errorMessage(error) };
   }
 
-  revalidatePath("/dashboard", "layout");
+  for (const page of refresh) {
+    revalidatePath(page);
+  }
 
   return { ok: true };
 }
@@ -105,23 +113,18 @@ export async function setSaved(
   articleId: string,
   value: boolean,
 ): Promise<ActionResult> {
-  return command(`/library/${idSchema.parse(articleId)}/saved`, "PUT", { value });
-}
-
-export async function setDownloaded(
-  articleId: string,
-  value: boolean,
-): Promise<ActionResult> {
-  return command(`/library/${idSchema.parse(articleId)}/downloaded`, "PUT", {
-    value,
-  });
+  return command(`/library/${idSchema.parse(articleId)}/saved`, "PUT", { value }, [
+    "/dashboard/saved",
+  ]);
 }
 
 export async function setFollowingSource(
   sourceId: string,
   value: boolean,
 ): Promise<ActionResult> {
-  return command(`/follows/sources/${idSchema.parse(sourceId)}`, "PUT", { value });
+  return command(`/follows/sources/${idSchema.parse(sourceId)}`, "PUT", { value }, [
+    "/dashboard/following",
+  ]);
 }
 
 export async function recordRead(articleId: string): Promise<ActionResult> {
@@ -147,21 +150,7 @@ export async function clearHistory(): Promise<ActionResult> {
     return { ok: false, message: errorMessage(error) };
   }
 
-  revalidatePath("/dashboard", "layout");
-
-  return { ok: true };
-}
-
-export async function clearDownloads(): Promise<ActionResult> {
-  await requireUserId();
-
-  try {
-    await apiRequest("/library/downloaded", z.void(), { method: "DELETE" });
-  } catch (error) {
-    return { ok: false, message: errorMessage(error) };
-  }
-
-  revalidatePath("/dashboard", "layout");
+  revalidatePath("/dashboard/history");
 
   return { ok: true };
 }
@@ -202,17 +191,7 @@ export async function sendFeedback(
 
 // ---------------------------------------------------------------- community newsroom
 
-import { messageKinds, triageSchema, type Triage } from "../schemas";
-
-export async function joinCommunity(
-  communityId: string,
-  language?: string,
-): Promise<ActionResult> {
-  return command("/newsroom/me/community", "PUT", {
-    community_id: idSchema.parse(communityId),
-    language: language || undefined,
-  });
-}
+import { messageKinds, shareResultSchema, triageSchema, type Triage } from "../schemas";
 
 export type ContributionState = {
   status: "idle" | "success" | "error";
@@ -221,6 +200,7 @@ export type ContributionState = {
 };
 
 const contributionSchema = z.object({
+  community_id: z.string().max(64).optional(),
   kind: z.enum(messageKinds),
   text: z.string().trim().min(1).max(4000),
   story_id: z.string().max(64).optional(),
@@ -234,6 +214,7 @@ export async function sendContribution(
   await requireUserId();
 
   const parsed = contributionSchema.safeParse({
+    community_id: formData.get("community_id")?.toString() || undefined,
     kind: formData.get("kind"),
     text: formData.get("text"),
     story_id: formData.get("story_id")?.toString() || undefined,
@@ -272,6 +253,7 @@ const reviewSchema = z.object({
   ]),
   decision: z.enum(["approve", "reject", "request_changes"]),
   notes: z.string().max(2000).default(""),
+  destinations: z.array(z.enum(["dashboard", "community"])).default([]),
 });
 
 /**
@@ -289,10 +271,19 @@ export async function submitReview(
     role: formData.get("role"),
     decision: formData.get("decision"),
     notes: formData.get("notes")?.toString() ?? "",
+    destinations: formData.getAll("destinations").map(String),
   });
 
   if (!parsed.success) {
     return { status: "error", message: "That decision was not understood. Reload and try again." };
+  }
+
+  if (
+    parsed.data.role === "editor_in_chief" &&
+    parsed.data.decision === "approve" &&
+    !parsed.data.destinations.length
+  ) {
+    return { status: "error", message: "Choose where to publish: the dashboard, the community page, or both." };
   }
 
   if (parsed.data.decision === "request_changes" && !parsed.data.notes.trim()) {
@@ -309,6 +300,8 @@ export async function submitReview(
             role: parsed.data.role,
             decision: parsed.data.decision,
             notes: parsed.data.notes,
+            destinations:
+              parsed.data.role === "editor_in_chief" ? parsed.data.destinations : [],
           },
         ],
       },
@@ -318,6 +311,7 @@ export async function submitReview(
   }
 
   revalidatePath("/editor");
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/community");
 
   return {
@@ -331,11 +325,22 @@ export async function submitReview(
   };
 }
 
-export async function runNewsroomCycle(): Promise<FormState> {
+const newsCountSchema = z.coerce.number().pipe(z.union([z.literal(10), z.literal(50), z.literal(100)]));
+
+export async function runNewsroomCycle(
+  _previous: FormState,
+  formData: FormData,
+): Promise<FormState> {
   await requireUserId();
 
+  // How many news the agents collect this time: 10, 50 or 100.
+  const count = newsCountSchema.safeParse(formData.get("news_count"));
+
   try {
-    await apiRequest("/newsroom/cycle", z.unknown(), { method: "POST", body: {} });
+    await apiRequest("/newsroom/cycle", z.unknown(), {
+      method: "POST",
+      body: count.success ? { news_count: count.data } : {},
+    });
   } catch (error) {
     return { status: "error", message: errorMessage(error) };
   }
@@ -343,6 +348,32 @@ export async function runNewsroomCycle(): Promise<FormState> {
   revalidatePath("/editor");
 
   return { status: "success", message: "The agents started a cycle." };
+}
+
+export async function linkTopics(): Promise<FormState> {
+  await requireUserId();
+
+  let added = 0;
+
+  try {
+    const result = await apiRequest(
+      "/newsroom/connector",
+      z.object({ links_added: z.number() }),
+      { method: "POST", body: {}, timeoutMs: 150_000 },
+    );
+    added = result.links_added;
+  } catch (error) {
+    return { status: "error", message: errorMessage(error) };
+  }
+
+  revalidatePath("/editor");
+
+  return {
+    status: "success",
+    message: added
+      ? `The connector linked ${added} pair${added === 1 ? "" : "s"} of topics.`
+      : "No new links: the related topics are already connected.",
+  };
 }
 
 export async function stopNewsroomCycle(): Promise<FormState> {
@@ -486,4 +517,94 @@ export async function appointCommunityRole(
         ? "Their trusted-voice role was removed."
         : "Saved. They can now review in the roles you gave them.",
   };
+}
+
+// ------------------------------------------------------- following, reading language, reactions
+
+export async function setFollowing(
+  kind: "community" | "official",
+  targetId: string,
+  value: boolean,
+): Promise<ActionResult> {
+  const id = idSchema.parse(targetId);
+
+  if (kind !== "community" && kind !== "official") {
+    return { ok: false, message: "Unknown kind." };
+  }
+
+  return value
+    ? command("/newsroom/follows", "POST", { kind, target_id: id }, ["/dashboard/community"])
+    : command(`/newsroom/follows/${kind}/${encodeURIComponent(id)}`, "DELETE", undefined, [
+        "/dashboard/community",
+      ]);
+}
+
+const languageCodeSchema = z.string().trim().min(2).max(8);
+
+/** The language the reader reads in, plus any others. Everything else is hidden from them. */
+export async function setReadingLanguages(
+  language: string,
+  alsoReads: string[],
+): Promise<ActionResult> {
+  const main = languageCodeSchema.safeParse(language);
+  const others = z.array(languageCodeSchema).max(12).safeParse(alsoReads);
+
+  if (!main.success || !others.success) {
+    return { ok: false, message: "Choose a language you read." };
+  }
+
+  return command(
+    "/newsroom/me/language",
+    "PUT",
+    { language: main.data, also_reads: others.data },
+    ["/dashboard/community"],
+  );
+}
+
+export async function setLiked(
+  storyId: string,
+  value: boolean,
+): Promise<ActionResult> {
+  return command(
+    `/newsroom/stories/${idSchema.parse(storyId)}/like`,
+    value ? "PUT" : "DELETE",
+  );
+}
+
+const sharePlatforms = [
+  "facebook",
+  "x",
+  "whatsapp",
+  "telegram",
+  "linkedin",
+  "email",
+  "copy_link",
+] as const;
+
+/** Records the share and returns the link to open (or copy). */
+export async function shareStory(
+  storyId: string,
+  platform: string,
+): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
+  await requireUserId();
+
+  const parsed = z.enum(sharePlatforms).safeParse(platform);
+
+  if (!parsed.success) {
+    return { ok: false, message: "Unknown way to share." };
+  }
+
+  try {
+    const result = await apiRequest(
+      `/newsroom/stories/${idSchema.parse(storyId)}/share`,
+      shareResultSchema,
+      { method: "POST", body: { platform: parsed.data } },
+    );
+
+    revalidatePath("/dashboard/community");
+
+    return { ok: true, url: result.url };
+  } catch (error) {
+    return { ok: false, message: errorMessage(error) };
+  }
 }

@@ -46,14 +46,20 @@ async function readDetail(response: Response): Promise<string> {
   return `The API returned ${response.status}.`;
 }
 
+/** The caller's session token, looked up once per render however many API calls follow. */
+const sessionToken = cache(async (): Promise<string | null> => {
+  const { getToken } = await auth();
+
+  return getToken();
+});
+
 /** Calls FastAPI with the caller's Clerk session token as a Bearer token. */
 export async function apiRequest<T>(
   path: string,
   schema: z.ZodType<T>,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { getToken } = await auth();
-  const token = await getToken();
+  const token = await sessionToken();
 
   if (!token) {
     throw new ApiError(401, "Your session has expired. Sign in again.");

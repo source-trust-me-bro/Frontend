@@ -196,7 +196,7 @@ const faqs = [
   {
     question: "What works today, and what is still being built?",
     answer:
-      "Today: story collection from news sources, a topic tree, communities, language-aware feeds, search, saved stories, reading history, downloads and following. Still being built, in order: story discovery, claim investigation and evidence, event and topic-tree curation, then community-specific editing.",
+      "Today: story collection from news sources, a topic tree, communities, language-aware feeds, search, saved stories, reading history and following. Still being built, in order: story discovery, claim investigation and evidence, event and topic-tree curation, then community-specific editing.",
   },
   {
     question: "Which languages are supported?",
@@ -762,19 +762,9 @@ export function LandingPage() {
                   </span>
                 </li>
                 <li className="tune__row">
-                  <h3 className="m-text-5">Audio playback</h3>
+                  <h3 className="m-text-5">Saved stories</h3>
                   <p className="m-text-8">
-                    Listen to any story with your browser&rsquo;s speech engine.
-                  </p>
-                  <span
-                    className="tune__ctl tune__toggle"
-                    aria-hidden="true"
-                  ></span>
-                </li>
-                <li className="tune__row">
-                  <h3 className="m-text-5">Saved and downloads</h3>
-                  <p className="m-text-8">
-                    Bookmark stories and keep a text copy for offline reading.
+                    Bookmark stories and pick them up on any device.
                   </p>
                   <span className="tune__ctl tune__tag" aria-hidden="true">
                     On account
@@ -1355,6 +1345,11 @@ export function LandingPage() {
                   <li>
                     <a className="m-link-2" href="#setup">
                       Roadmap
+                    </a>
+                  </li>
+                  <li>
+                    <a className="m-link-2" href="/pricing">
+                      Pricing
                     </a>
                   </li>
                   <li>

@@ -10,16 +10,8 @@ import {
   getTrending,
   type LibraryKind,
 } from "@/features/news/server/data";
-import {
-  apiRequest,
-} from "@/features/news/server/api";
-import {
-  articleSummarySchema,
-  pageSchema,
-} from "@/features/news/schemas";
-
-import { ListenButton, ClearButton, FollowButton } from "./article-controls";
-import { StoryList, formatDate } from "./article-list";
+import { ClearButton, FollowButton } from "./article-controls";
+import { StoryList } from "./article-list";
 import { ErrorPanel } from "./dashboard-shell";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -131,13 +123,6 @@ const libraryCopy: Record<
     emptyTitle: "No reading history yet",
     emptyBody: "Open a story to start your history.",
   },
-  downloaded: {
-    title: "Downloaded stories",
-    sub: "Stories you kept for offline reading.",
-    base: "/dashboard/downloaded",
-    emptyTitle: "No downloads yet",
-    emptyBody: "Open a story and choose Download to keep it here.",
-  },
 };
 
 export async function LibraryView({
@@ -157,11 +142,8 @@ export async function LibraryView({
 
   const { items, pages, total } = result.data;
   const clear =
-    items.length && kind !== "saved" ? (
-      <ClearButton
-        kind={kind === "history" ? "history" : "downloads"}
-        label={kind === "history" ? "Clear history" : "Clear downloads"}
-      />
+    items.length && kind === "history" ? (
+      <ClearButton label="Clear history" />
     ) : null;
 
   return (
@@ -189,7 +171,9 @@ export async function LibraryView({
 }
 
 export async function TrendingView() {
-  const result = await attempt(() => getTrending(20));
+  const result = await attempt(async () =>
+    getTrending(20, (await getProfile()).preferred_language),
+  );
 
   if (!result.ok) {
     return <ErrorPanel message={result.message} />;
@@ -207,59 +191,6 @@ export async function TrendingView() {
         <Empty
           title="Nothing is trending yet"
           body="Trending fills in as readers open stories."
-        />
-      )}
-    </div>
-  );
-}
-
-export async function AudioView() {
-  const result = await attempt(() =>
-    apiRequest("/articles?page_size=20", pageSchema(articleSummarySchema)),
-  );
-
-  if (!result.ok) {
-    return <ErrorPanel message={result.message} />;
-  }
-
-  const articles = result.data.items;
-
-  return (
-    <div className="dash-view">
-      <ViewHeader
-        title="Audio books"
-        sub="Listen to stories read aloud by your browser's speech engine."
-      />
-      {articles.length ? (
-        <ul className="dash-audio-list">
-          {articles.map((article) => (
-            <li className="dash-audio-item" key={article.id}>
-              <div className="dash-audio-item__body">
-                <span className="dash-item__meta">
-                  {article.source_name} · {article.language.toUpperCase()} ·{" "}
-                  {formatDate(article.published_at ?? article.created_at)}
-                </span>
-                <Link
-                  className="dash-item__title"
-                  href={`/dashboard/articles/${article.id}`}
-                >
-                  {article.title}
-                </Link>
-              </div>
-              <ListenButton
-                id={article.id}
-                language={article.language}
-                text={[article.title, article.summary]
-                  .filter(Boolean)
-                  .join(". ")}
-              />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <Empty
-          title="No stories to play"
-          body="Stories appear once editors ingest news sources."
         />
       )}
     </div>
@@ -359,19 +290,14 @@ const helpItems = [
       "It shows stories in your reading language, narrowed to the topics you picked in Settings. Change either at any time.",
   },
   {
-    question: "What do Saved, Read history and Downloaded do?",
+    question: "What do Saved and Read history do?",
     answer:
-      "Saved keeps bookmarks, Read history lists stories you opened, and Download keeps a text copy of a story. All three are stored on your account, so they follow you across devices.",
+      "Saved keeps bookmarks, and Read history lists stories you opened. Both are stored on your account, so they follow you across devices.",
   },
   {
     question: "How does following work?",
     answer:
       "You follow news sources. The Following tab shows the latest stories from every source you follow.",
-  },
-  {
-    question: "How does audio work?",
-    answer:
-      "Listen uses your browser's built-in speech engine, so it works offline and no audio leaves your device. Voices depend on your browser and operating system.",
   },
   {
     question: "How is KalevaShorts paid for, and can funders influence stories?",

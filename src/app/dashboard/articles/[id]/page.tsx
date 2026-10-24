@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { z } from "zod";
 
 import {
-  DownloadButton,
   FollowButton,
-  ListenButton,
   ReadTracker,
   SaveButton,
 } from "@/features/dashboard/components/article-controls";
@@ -16,11 +13,7 @@ import {
   StoryList,
   formatDate,
 } from "@/features/dashboard/components/article-list";
-import {
-  DashboardShell,
-  DashboardSkeleton,
-  ErrorPanel,
-} from "@/features/dashboard/components/dashboard-shell";
+import { ErrorPanel } from "@/features/dashboard/components/dashboard-shell";
 import {
   articleDetailSchema,
   articleSummarySchema,
@@ -28,6 +21,7 @@ import {
 } from "@/features/news/schemas";
 import { apiRequest, attempt, getProfile } from "@/features/news/server/api";
 import { getLibraryState } from "@/features/news/server/data";
+import { Markdown } from "@/features/community/components/markdown";
 
 export const metadata: Metadata = {
   title: "Story",
@@ -39,19 +33,8 @@ export default function ArticlePage({
   params,
 }: PageProps<"/dashboard/articles/[id]">) {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardShell>
-        <Article params={params} />
-      </DashboardShell>
-    </Suspense>
+    <Article params={params} />
   );
-}
-
-function paragraphs(text: string): string[] {
-  return text
-    .split(/\n{2,}/)
-    .map((part) => part.trim())
-    .filter(Boolean);
 }
 
 async function Article({
@@ -93,17 +76,6 @@ async function Article({
 
   {
     const { article, translations, related, library, profile } = result.data;
-    const listenText = [article.title, article.summary, article.content]
-      .filter(Boolean)
-      .join(". ");
-    const fileText = [
-      article.title,
-      `${article.source_name} · ${article.url}`,
-      "",
-      article.summary ?? "",
-      "",
-      article.content ?? "",
-    ].join("\n");
 
     return (
       <article className="dash-article">
@@ -132,25 +104,12 @@ async function Article({
         <ReadTracker articleId={article.id} />
         <div className="dash-actions">
           {library ? (
-            <>
-              <SaveButton
-                articleId={article.id}
-                saved={library.saved.includes(article.id)}
-                withLabel
-              />
-              <DownloadButton
-                articleId={article.id}
-                downloaded={library.downloaded.includes(article.id)}
-                fileName={`${article.title.slice(0, 60).replace(/[^\p{L}\p{N}]+/gu, "-")}.txt`}
-                fileText={fileText}
-              />
-            </>
+            <SaveButton
+              articleId={article.id}
+              saved={library.saved.includes(article.id)}
+              withLabel
+            />
           ) : null}
-          <ListenButton
-            id={article.id}
-            text={listenText}
-            language={article.language}
-          />
           {article.source_id && profile ? (
             <FollowButton
               sourceId={article.source_id}
@@ -169,9 +128,7 @@ async function Article({
         </div>
         {article.content ? (
           <div className="dash-article__text">
-            {paragraphs(article.content).map((text, index) => (
-              <p key={index}>{text}</p>
-            ))}
+            <Markdown text={article.content} />
           </div>
         ) : null}
 
@@ -185,11 +142,7 @@ async function Article({
                   {translation.title ? ` — ${translation.title}` : ""}
                 </strong>
                 {translation.summary ? <p>{translation.summary}</p> : null}
-                {translation.content
-                  ? paragraphs(translation.content).map((text, index) => (
-                      <p key={index}>{text}</p>
-                    ))
-                  : null}
+                {translation.content ? <Markdown text={translation.content} /> : null}
               </div>
             ))}
           </section>

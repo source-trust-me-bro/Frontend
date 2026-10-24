@@ -1,13 +1,33 @@
 import { z } from "zod";
 
-export const languageSchema = z.enum(["en", "fi", "sv"]);
+export const languageSchema = z.enum(["en", "fi", "sv", "ar", "se", "uk", "ru"]);
 export type Language = z.infer<typeof languageSchema>;
 
 export const languageLabels: Record<Language, string> = {
   en: "English",
   fi: "Suomi",
   sv: "Svenska",
+  ar: "العربية",
+  se: "Davvisámegiella",
+  uk: "Українська",
+  ru: "Русский",
 };
+
+const rightToLeft = new Set(["ar", "fa", "he", "ur"]);
+
+/** The writing direction for a language code, for the dir attribute on its text. */
+export function textDirection(code: string | null | undefined): "rtl" | "ltr" {
+  return code && rightToLeft.has(code.toLowerCase()) ? "rtl" : "ltr";
+}
+
+/** A language readers can choose, with how many stories its collection holds. */
+export const languageInfoSchema = z.object({
+  code: z.string(),
+  label: z.string(),
+  rtl: z.boolean().default(false),
+  articles: z.number().default(0),
+});
+export type LanguageInfo = z.infer<typeof languageInfoSchema>;
 
 export const userProfileSchema = z.object({
   id: z.string(),
@@ -128,7 +148,6 @@ export function canEdit(profile: UserProfile): boolean {
 
 export const libraryStateSchema = z.object({
   saved: z.array(z.string()).default([]),
-  downloaded: z.array(z.string()).default([]),
 });
 
 export const feedbackSchema = z.object({
@@ -173,6 +192,7 @@ export const memberSchema = z.object({
   community_role: z.enum(["member", "moderator", "admin"]).default("member"),
   review_roles: z.array(z.string()).default([]),
   review_languages: z.array(z.string()).default([]),
+  reading_languages: z.array(z.string()).default([]),
 });
 export type Member = z.infer<typeof memberSchema>;
 
@@ -275,7 +295,78 @@ export const reviewTaskSchema = z.object({
 });
 export type ReviewTask = z.infer<typeof reviewTaskSchema>;
 
+export const cycleProgressSchema = z.object({
+  running: z.boolean().default(false),
+  outcome: z.string().default(""),
+  note: z.string().default(""),
+  percent: z.number().default(0),
+  stage: z.string().default(""),
+  elapsed_seconds: z.number().default(0),
+  eta_seconds: z.number().nullish(),
+  activity: z
+    .array(
+      z.object({
+        t: z.number().default(0),
+        agent: z.string(),
+        text: z.string(),
+        level: z.string().default("info"),
+      }),
+    )
+    .default([]),
+  usage: z
+    .object({
+      calls: z.number().default(0),
+      budget: z.number().default(0),
+      in_flight: z.number().default(0),
+      peak_in_flight: z.number().default(0),
+      max_concurrent: z.number().default(0),
+      avg_seconds: z.number().nullish(),
+      by_task: z.record(z.string(), z.number()).default({}),
+    })
+    .default({
+      calls: 0,
+      budget: 0,
+      in_flight: 0,
+      peak_in_flight: 0,
+      max_concurrent: 0,
+      by_task: {},
+    }),
+  stages: z
+    .array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        status: z.string(),
+        done: z.number().default(0),
+        total: z.number().default(0),
+        detail: z.string().default(""),
+        percent: z.number().default(0),
+        seconds: z.number().nullish(),
+      }),
+    )
+    .default([]),
+  story_steps: z.array(z.object({ key: z.string(), label: z.string() })).default([]),
+  stories: z
+    .array(
+      z.object({
+        pitch_id: z.string(),
+        title: z.string(),
+        community: z.string(),
+        step: z.string(),
+        step_label: z.string(),
+        steps_done: z.number().default(0),
+        steps_total: z.number().default(5),
+        languages_done: z.number().default(0),
+        languages_total: z.number().default(0),
+        status: z.string(),
+      }),
+    )
+    .default([]),
+});
+export type CycleProgress = z.infer<typeof cycleProgressSchema>;
+
 export const cycleStatusSchema = z.object({
+  progress: cycleProgressSchema.nullish(),
   status: z.enum(["idle", "running", "done", "failed"]),
   started_at: z.string().nullish(),
   finished_at: z.string().nullish(),
@@ -293,3 +384,74 @@ export const cycleStatusSchema = z.object({
     .nullish(),
 });
 export type CycleStatus = z.infer<typeof cycleStatusSchema>;
+
+export const newsroomOverviewSchema = z.object({
+  topics: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      depth: z.number(),
+      events: z.number(),
+      proposed: z.boolean().default(false),
+      branches: z.array(z.string()).default([]),
+    }),
+  ),
+  sources: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      language: z.string(),
+      feed_url: z.string().nullish(),
+      official: z.boolean().default(false),
+      enabled: z.boolean(),
+      headline_only: z.boolean().default(false),
+      articles: z.number(),
+    }),
+  ),
+  articles: z.number(),
+  jobs: z.array(cycleStatusSchema),
+});
+export type NewsroomOverview = z.infer<typeof newsroomOverviewSchema>;
+
+// ------------------------------------------------- following, reactions and sharing
+
+export const followCardSchema = z.object({
+  kind: z.enum(["community", "official"]),
+  id: z.string(),
+  name: z.string(),
+  description: z.string().default(""),
+  languages: z.array(z.string()).default([]),
+  followers: z.number().default(0),
+  following: z.boolean().default(false),
+  reasons: z.array(z.string()).default([]),
+});
+export type FollowCard = z.infer<typeof followCardSchema>;
+
+export const directorySchema = z.object({
+  communities: z.array(followCardSchema).default([]),
+  official: z.array(followCardSchema).default([]),
+});
+export type Directory = z.infer<typeof directorySchema>;
+
+export const engagementStatsSchema = z.object({
+  likes: z.number().default(0),
+  comments: z.number().default(0),
+  shares: z.number().default(0),
+  score: z.number().default(0),
+});
+export type EngagementStats = z.infer<typeof engagementStatsSchema>;
+
+/** A story in "Following": the public story plus the edition chosen for this reader. */
+export const feedItemSchema = publicStorySchema.extend({
+  language: z.string().nullish(),
+  available_languages: z.array(z.string()).default([]),
+  because: z.array(z.string()).default([]),
+  stats: engagementStatsSchema.default({ likes: 0, comments: 0, shares: 0, score: 0 }),
+  liked_by_me: z.boolean().default(false),
+});
+export type FeedItem = z.infer<typeof feedItemSchema>;
+
+export const shareResultSchema = z.object({
+  url: z.string(),
+  stats: engagementStatsSchema,
+});

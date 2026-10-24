@@ -3,8 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-/** Re-renders the page every few seconds while a background job is running. */
-export function AutoRefresh({ active, everyMs = 6000 }: { active: boolean; everyMs?: number }) {
+/**
+ * Re-renders the page every few seconds while a background job is running. It skips the tick
+ * when the tab is hidden, so a forgotten tab does not keep reloading the whole page.
+ */
+export function AutoRefresh({ active, everyMs = 10_000 }: { active: boolean; everyMs?: number }) {
   const router = useRouter();
 
   useEffect(() => {
@@ -12,9 +15,20 @@ export function AutoRefresh({ active, everyMs = 6000 }: { active: boolean; every
       return;
     }
 
-    const timer = window.setInterval(() => router.refresh(), everyMs);
+    const refresh = () => {
+      if (document.visibilityState === "visible") {
+        router.refresh();
+      }
+    };
+    const timer = window.setInterval(refresh, everyMs);
 
-    return () => window.clearInterval(timer);
+    // Catch up at once when the tab becomes visible again.
+    document.addEventListener("visibilitychange", refresh);
+
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [active, everyMs, router]);
 
   return null;

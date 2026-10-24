@@ -43,8 +43,10 @@ const actionText: Record<string, string> = {
 
 export function ContributionForm({
   stories,
+  communities,
 }: {
   stories: Array<{ id: string; headline: string }>;
+  communities: Array<{ id: string; name: string }>;
 }) {
   const [state, formAction, pending] = useActionState(
     sendContribution,
@@ -73,6 +75,21 @@ export function ContributionForm({
         </div>
         <small>{active.hint}</small>
       </fieldset>
+
+      {communities.length > 1 ? (
+        <label>
+          Which community is this for?
+          <select name="community_id" defaultValue={communities[0]?.id}>
+            {communities.map((community) => (
+              <option key={community.id} value={community.id}>
+                {community.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <input type="hidden" name="community_id" value={communities[0]?.id ?? ""} />
+      )}
 
       {kind === "correction" && stories.length ? (
         <label>

@@ -570,7 +570,7 @@
   #footer .footer__logo { flex: none; width: clamp(5rem, 17vw, 15rem); height: auto; aspect-ratio: 40 / 28; fill: none; stroke-width: 3.2; stroke-linecap: round; margin-bottom: 0.08em; }
   #footer .footer__logo-a { stroke: var(--color-4); }
   #footer .footer__logo-b { stroke: var(--color-2); }
-  #footer .footer__word { font-size: min(28rem, (100vw - 2 * var(--space-1) - clamp(5rem, 17vw, 15rem) - clamp(1rem, 3vw, 3rem)) / (var(--len) * 0.46)); line-height: 0.8; padding-bottom: 0.06em; }
+  #footer .footer__word { font-size: min(28rem, (min(100vw, 88rem) - 2 * var(--space-1) - clamp(5rem, 17vw, 15rem) - clamp(1rem, 3vw, 3rem)) / (var(--len) * 0.46)); line-height: 0.8; padding-bottom: 0.06em; }
   #footer .footer__legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem 2rem; margin-top: clamp(2rem, 4vw, 3rem); padding-block: 1.5rem 2rem; border-top: 0.0625rem solid color-mix(in srgb, var(--color-2) 14%, transparent); }
   #footer .footer__legal ul { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
   #footer .footer__note { max-width: 46rem; margin-top: 0; padding-bottom: 2.5rem; }

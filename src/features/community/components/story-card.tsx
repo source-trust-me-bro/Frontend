@@ -1,4 +1,6 @@
-import type { PublicStory } from "@/features/news/schemas";
+import { textDirection, type PublicStory } from "@/features/news/schemas";
+
+import { Markdown } from "./markdown";
 
 const needLabels: Record<string, string> = {
   information: "What happened",
@@ -15,13 +17,6 @@ const roleLabels: Record<string, string> = {
   community_reviewer: "Community reviewer",
   subject_expert: "Subject expert",
 };
-
-function paragraphs(text: string): string[] {
-  return text
-    .split(/\n{2,}/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("en-FI", {
@@ -70,20 +65,24 @@ export function StoryCard({
       ) : null}
 
       {primary ? (
-        <div className="dash-article__text">
-          {paragraphs(primary.text).map((text, index) => (
-            <p key={index}>{text}</p>
-          ))}
+        <div
+          className="dash-article__text"
+          lang={primary.language}
+          dir={textDirection(primary.language)}
+        >
+          <Markdown text={primary.text} />
         </div>
       ) : null}
 
       {others.map((item) => (
         <details className="dash-more-language" key={item.language}>
           <summary>Read in {item.language.toUpperCase()}</summary>
-          <div className="dash-article__text">
-            {paragraphs(item.text).map((text, index) => (
-              <p key={index}>{text}</p>
-            ))}
+          <div
+            className="dash-article__text"
+            lang={item.language}
+            dir={textDirection(item.language)}
+          >
+            <Markdown text={item.text} />
           </div>
         </details>
       ))}

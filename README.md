@@ -92,3 +92,16 @@ pnpm build
 - Code: MIT, see [LICENSE](./LICENSE).
 - Landing page template: MIT, Copyright (c) 2026 8B, see [LICENSE-8B.md](./LICENSE-8B.md).
 - Photos, fonts and libraries: see [CREDITS.md](./CREDITS.md).
+
+## Faster server: production build on several cores
+
+`pnpm dev` is one process and compiles pages on demand, so it is slow by design. For real use:
+
+```
+pnpm build
+pnpm start:cluster                         # one worker per 4 logical cores (at most 8)
+pnpm start:cluster -- --workers 12 --port 3000
+```
+
+Options are flags, not environment variables: the app is configured by the three variables in
+`src/lib/server/env.ts` only.

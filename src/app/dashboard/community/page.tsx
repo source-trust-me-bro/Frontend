@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 
-import {
-  DashboardShell,
-  DashboardSkeleton,
-} from "@/features/dashboard/components/dashboard-shell";
-import { CommunityView } from "@/features/community/components/community-view";
+import { CommunityTabs, parseTab } from "@/features/community/components/community-tabs";
+import { ParticipateView } from "@/features/community/components/community-view";
+import { DiscoverView } from "@/features/community/components/discover-view";
+import { FollowingStoriesView } from "@/features/community/components/following-view";
 
 export const metadata: Metadata = {
   title: "Community",
@@ -15,12 +13,29 @@ export const metadata: Metadata = {
 
 export const instant = false;
 
-export default function CommunityPage() {
+export default function CommunityPage({ searchParams }: PageProps<"/dashboard/community">) {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardShell>
-        <CommunityView />
-      </DashboardShell>
-    </Suspense>
+    <CommunityTabsPage searchParams={searchParams} />
+  );
+}
+
+async function CommunityTabsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const tab = parseTab((await searchParams).tab);
+
+  return (
+    <>
+      <CommunityTabs active={tab} />
+      {tab === "following" ? (
+        <FollowingStoriesView />
+      ) : tab === "discover" ? (
+        <DiscoverView />
+      ) : (
+        <ParticipateView />
+      )}
+    </>
   );
 }

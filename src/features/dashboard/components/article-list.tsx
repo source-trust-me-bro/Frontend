@@ -24,14 +24,20 @@ export function formatDate(iso: string | null | undefined): string {
 export function ArticleList({
   articles,
   saved,
+  addLabels,
 }: {
   articles: ArticleSummary[];
   saved?: Set<string> | null;
+  /** Show a labelled add button (for example "Add" / "Added") instead of the bookmark icon. */
+  addLabels?: [string, string];
 }) {
   return (
     <ul className="dash-list">
       {articles.map((article) => (
-        <li className="dash-item" key={article.id}>
+        <li
+          className={`dash-item${addLabels ? " dash-item--labelled" : ""}`}
+          key={article.id}
+        >
           <span className="dash-item__avatar" aria-hidden="true">
             {article.source_name.charAt(0).toUpperCase()}
           </span>
@@ -63,7 +69,12 @@ export function ArticleList({
             </time>
           </div>
           {saved ? (
-            <SaveButton articleId={article.id} saved={saved.has(article.id)} />
+            <SaveButton
+              articleId={article.id}
+              saved={saved.has(article.id)}
+              withLabel={Boolean(addLabels)}
+              labels={addLabels}
+            />
           ) : null}
         </li>
       ))}
@@ -72,13 +83,20 @@ export function ArticleList({
 }
 
 /** Article list that also marks which stories the reader has saved. */
-export async function StoryList({ articles }: { articles: ArticleSummary[] }) {
+export async function StoryList({
+  articles,
+  addLabels,
+}: {
+  articles: ArticleSummary[];
+  addLabels?: [string, string];
+}) {
   const state = await attempt(getLibraryState);
 
   return (
     <ArticleList
       articles={articles}
       saved={state.ok ? new Set(state.data.saved) : null}
+      addLabels={addLabels}
     />
   );
 }

@@ -12,7 +12,7 @@ import {
 } from "../schemas";
 import { apiRequest } from "./api";
 
-export type LibraryKind = "saved" | "downloaded" | "history";
+export type LibraryKind = "saved" | "history";
 
 export const getLibraryState = cache(() =>
   apiRequest("/library/state", libraryStateSchema),
@@ -30,9 +30,16 @@ export const getFollowedSources = cache(() =>
   apiRequest("/follows/sources", z.array(sourceSchema)),
 );
 
-export function getTrending(limit: number) {
+/** Most-read stories. Pass the reader's language, or stories in every language are mixed in. */
+export function getTrending(limit: number, language?: string) {
+  const query = new URLSearchParams({ limit: String(limit) });
+
+  if (language) {
+    query.set("language", language);
+  }
+
   return apiRequest(
-    `/articles/trending?limit=${limit}`,
+    `/articles/trending?${query}`,
     z.array(articleSummarySchema),
   );
 }
@@ -56,8 +63,13 @@ export function getFollowingFeed(page: number) {
 import {
   communitySchema,
   cycleStatusSchema,
+  directorySchema,
+  feedItemSchema,
+  followCardSchema,
+  languageInfoSchema,
   memberSchema,
   myMessageSchema,
+  newsroomOverviewSchema,
   publicStorySchema,
   reviewTaskSchema,
 } from "../schemas";
@@ -68,9 +80,12 @@ export const getCommunities = cache(() =>
 
 export const getMember = cache(() => apiRequest("/newsroom/me", memberSchema));
 
-export function getCommunityFeed(communityId: string) {
+export function getCommunityFeed(
+  communityId: string,
+  destination: "dashboard" | "community",
+) {
   return apiRequest(
-    `/newsroom/feed?community_id=${encodeURIComponent(communityId)}`,
+    `/newsroom/feed?community_id=${encodeURIComponent(communityId)}&destination=${destination}`,
     z.array(publicStorySchema),
   );
 }
@@ -79,6 +94,10 @@ export const getMyMessages = cache(() =>
   apiRequest("/newsroom/messages/mine", z.array(myMessageSchema)),
 );
 
+export function getNewsroomOverview() {
+  return apiRequest("/newsroom/overview", newsroomOverviewSchema);
+}
+
 export function getCycleStatus() {
   return apiRequest("/newsroom/cycle/latest", cycleStatusSchema);
 }
@@ -86,3 +105,28 @@ export function getCycleStatus() {
 export function getReviewQueue() {
   return apiRequest("/newsroom/review-queue", z.array(reviewTaskSchema));
 }
+
+// ------------------------------------------------------- following (communities, accounts)
+
+export const getDirectory = cache(() => apiRequest("/newsroom/directory", directorySchema));
+
+export const getFollows = cache(() =>
+  apiRequest("/newsroom/follows", z.array(followCardSchema)),
+);
+
+export function getRecommended(limit = 8) {
+  return apiRequest(
+    `/newsroom/follows/recommended?limit=${limit}`,
+    z.array(followCardSchema),
+  );
+}
+
+/** Stories from what the reader follows, only in the languages they read. */
+export function getMyCommunityFeed() {
+  return apiRequest("/newsroom/feed/following", z.array(feedItemSchema));
+}
+
+/** Every language readers can choose, and how many stories each has. */
+export const getLanguages = cache(() =>
+  apiRequest("/languages", z.array(languageInfoSchema)),
+);

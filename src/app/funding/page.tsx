@@ -110,6 +110,7 @@ export default function FundingPage() {
           get.
         </p>
         <p>
+          <Link href="/pricing">See the pricing plan</Link> ·{" "}
           <Link href="/dashboard/feedback">Send feedback</Link> ·{" "}
           <Link href="/dashboard/community">See the community newsroom</Link>
         </p>
