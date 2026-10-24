@@ -1,0 +1,677 @@
+/* Public pricing page. Uses the landing palette: cream, sand, ink, green, navy. */
+
+.pricing-page {
+  --p-ink: var(--color-1);
+  --p-cream: var(--color-2);
+  --p-sand: var(--color-3);
+  --p-green: var(--color-4);
+  --p-muted: var(--color-5);
+  --p-navy: var(--color-6);
+  --p-sky: var(--color-7);
+  --p-line: color-mix(in srgb, var(--color-1) 14%, transparent);
+  min-height: 100svh;
+  background: var(--p-cream);
+  color: var(--p-ink);
+  font-family: var(--font-1);
+  line-height: 1.55;
+}
+
+.pricing-page a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+/* Site buttons keep their own colours */
+.pricing-page .m-btn {
+  color: var(--p-ink);
+}
+
+.pricing-page .m-btn-2 {
+  color: var(--p-cream);
+}
+
+.pricing-page .m-btn-3 {
+  color: var(--p-ink);
+}
+
+.pricing-page h1,
+.pricing-page h2,
+.pricing-page h3,
+.pricing-page p {
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ layout */
+
+.pricing-page__inner {
+  display: grid;
+  gap: clamp(3.5rem, 8vw, 6rem);
+  max-width: 88rem;
+  margin-inline: auto;
+  padding: clamp(3rem, 7vw, 6rem) var(--space-1) clamp(3rem, 6vw, 5rem);
+}
+
+.pricing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--p-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pricing-eyebrow::before {
+  content: "";
+  width: 1.5rem;
+  height: 0.1875rem;
+  border-radius: var(--radius-3);
+  background: var(--p-green);
+}
+
+.pricing-section {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.pricing-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+}
+
+.pricing-section__head > div:first-child {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 44rem;
+}
+
+.pricing-section h2 {
+  font-size: clamp(1.875rem, 4vw, 2.75rem);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.pricing-section__intro {
+  color: var(--p-muted);
+  font-size: 1.0625rem;
+}
+
+.pricing-section__fine {
+  color: var(--p-muted);
+  font-size: 0.875rem;
+}
+
+/* -------------------------------------------------------------------- hero */
+
+/* The same dark opening band as the landing page, under the floating site nav. */
+.pricing-hero {
+  background: var(--p-navy);
+  color: var(--p-cream);
+  padding-block: calc(var(--page-nav-h, 5.5rem) + clamp(2rem, 5vw, 4.5rem))
+    clamp(3rem, 7vw, 6rem);
+}
+
+.pricing-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+.pricing-hero__copy {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.pricing-hero .pricing-eyebrow {
+  color: var(--p-sky);
+}
+
+.pricing-hero h1 {
+  max-width: 14ch;
+}
+
+.pricing-hero h1 em {
+  font-style: normal;
+  color: var(--p-green);
+}
+
+.pricing-hero__lead {
+  max-width: 38rem;
+  color: color-mix(in srgb, var(--p-cream) 82%, transparent);
+  font-size: clamp(1.0625rem, 1.35vw, 1.25rem);
+}
+
+.pricing-hero__note {
+  max-width: 38rem;
+  padding: 0.875rem 1.125rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--p-cream) 10%, transparent);
+  color: color-mix(in srgb, var(--p-cream) 78%, transparent);
+  font-size: 0.875rem;
+}
+
+.pricing-glance {
+  display: grid;
+  gap: 0.25rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: var(--radius-2);
+  background: var(--p-ink);
+  color: var(--p-cream);
+}
+
+.pricing-glance__title {
+  margin-bottom: 0.75rem;
+  color: var(--p-green);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pricing-glance__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 0;
+  border-top: 0.0625rem solid
+    color-mix(in srgb, var(--p-cream) 16%, transparent);
+}
+
+.pricing-glance__row:first-of-type {
+  border-top: 0;
+}
+
+.pricing-glance__who {
+  font-size: 1rem;
+}
+
+.pricing-glance__price {
+  font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.pricing-glance__price small {
+  color: var(--p-sky);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ billing toggle */
+
+.pricing-toggle {
+  display: inline-flex;
+  padding: 0.25rem;
+  border-radius: var(--radius-3);
+  background: var(--p-sand);
+}
+
+.pricing-toggle button {
+  min-height: 2.5rem;
+  padding: 0.375rem 1.125rem;
+  border: 0;
+  border-radius: var(--radius-3);
+  background: transparent;
+  color: var(--p-ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pricing-toggle button[aria-pressed="true"] {
+  background: var(--p-ink);
+  color: var(--p-cream);
+}
+
+.pricing-toggle__save {
+  margin-left: 0.25rem;
+  color: var(--p-green);
+  font-size: 0.75rem;
+}
+
+/* ------------------------------------------------------------------- cards */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.pricing-card {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 0.875rem;
+  padding: clamp(1.5rem, 2.5vw, 2.125rem);
+  border-radius: var(--radius-2);
+  background: var(--p-sand);
+}
+
+.pricing-card--featured {
+  background: var(--p-ink);
+  color: var(--p-cream);
+  box-shadow: var(--shadow-2);
+}
+
+.pricing-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.pricing-card h3 {
+  font-size: 1.375rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.pricing-card__badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-3);
+  background: var(--p-green);
+  color: var(--p-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.pricing-card__price {
+  font-size: clamp(2.5rem, 4vw, 3.25rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.pricing-card__price small {
+  color: var(--p-muted);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.pricing-card--featured .pricing-card__price small,
+.pricing-card--featured .pricing-card__billing,
+.pricing-card--featured .pricing-card__tagline {
+  color: color-mix(in srgb, var(--p-cream) 72%, transparent);
+}
+
+.pricing-card__billing,
+.pricing-card__tagline,
+.pricing-card__who {
+  color: var(--p-muted);
+  font-size: 0.9375rem;
+}
+
+.pricing-card__who {
+  font-weight: 600;
+}
+
+.pricing-card__features {
+  display: grid;
+  align-content: start;
+  gap: 0.625rem;
+  margin: 0.25rem 0 0.5rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.pricing-card__features li {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.pricing-card__features li::before {
+  content: "";
+  position: absolute;
+  top: 0.4375rem;
+  left: 0;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--p-green);
+}
+
+.pricing-card__cta {
+  width: 100%;
+  text-align: center;
+}
+
+.pricing-card--featured .pricing-card__cta {
+  background: var(--p-green);
+  color: var(--p-ink);
+}
+
+/* ---------------------------------------------------------- organisations */
+
+.pricing-orgs {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+  padding: clamp(1.5rem, 4vw, 3.25rem);
+  border-radius: var(--radius-1);
+  background: var(--p-ink);
+  color: var(--p-cream);
+}
+
+.pricing-orgs .pricing-eyebrow,
+.pricing-orgs .pricing-section__intro {
+  color: var(--p-sky);
+}
+
+.pricing-orgs .pricing-card {
+  background: var(--p-cream);
+  color: var(--p-ink);
+}
+
+.pricing-orgs .pricing-card--org .pricing-card__price {
+  font-size: clamp(1.875rem, 3vw, 2.5rem);
+}
+
+.pricing-grant {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  padding: clamp(1.25rem, 3vw, 1.875rem);
+  border: 0.0625rem dashed color-mix(in srgb, var(--p-cream) 40%, transparent);
+  border-radius: var(--radius-2);
+}
+
+.pricing-grant > div {
+  display: grid;
+  gap: 0.375rem;
+  max-width: 44rem;
+}
+
+.pricing-grant h3 {
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.pricing-grant p {
+  color: color-mix(in srgb, var(--p-cream) 80%, transparent);
+  font-size: 0.9375rem;
+}
+
+.pricing-grant .pricing-grant__price {
+  color: var(--p-green);
+  font-size: 1.5rem;
+  font-weight: 650;
+}
+
+/* ----------------------------------------------------------------- add-ons */
+
+.pricing-addons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricing-addons li {
+  display: grid;
+  align-content: space-between;
+  gap: 1.25rem;
+  padding: 1.625rem;
+  border: 0.0625rem solid var(--p-line);
+  border-radius: var(--radius-2);
+  background: #fff;
+}
+
+.pricing-addons h3 {
+  font-size: 1.1875rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.pricing-addons p {
+  margin-top: 0.5rem;
+  color: var(--p-muted);
+  font-size: 0.9375rem;
+}
+
+.pricing-addons .pricing-addons__price {
+  display: inline-block;
+  width: fit-content;
+  margin: 0;
+  padding: 0.4375rem 0.875rem;
+  border-radius: var(--radius-3);
+  background: var(--p-sand);
+  color: var(--p-ink);
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+
+/* ------------------------------------------------------------------- table */
+
+.pricing-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-2);
+  background: var(--p-sand);
+}
+
+.pricing-table {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.pricing-table th,
+.pricing-table td {
+  padding: 1rem 1.375rem;
+  border-bottom: 0.0625rem solid var(--p-line);
+  text-align: left;
+}
+
+.pricing-table thead th {
+  background: var(--p-ink);
+  color: var(--p-cream);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pricing-table thead th:not(:first-child),
+.pricing-table td {
+  text-align: center;
+}
+
+.pricing-table tbody th {
+  font-weight: 550;
+}
+
+.pricing-table tbody tr:last-child th,
+.pricing-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.pricing-table__yes {
+  display: inline-block;
+  padding: 0.1875rem 0.75rem;
+  border-radius: var(--radius-3);
+  background: var(--p-green);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.pricing-table__no {
+  color: var(--p-muted);
+}
+
+/* ---------------------------------------------------- what money never buys */
+
+.pricing-never {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  padding: clamp(1.75rem, 4vw, 3.25rem);
+  border-radius: var(--radius-1);
+  background: var(--p-sand);
+}
+
+.pricing-never__head {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.pricing-never__list {
+  display: grid;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricing-never__list li {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.125rem 1.375rem;
+  border-radius: 1.25rem;
+  background: var(--p-cream);
+  font-size: 1.0625rem;
+}
+
+.pricing-never__list li::before {
+  content: "×";
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--p-ink);
+  color: var(--p-green);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* --------------------------------------------------------------------- faq */
+
+.pricing-faq {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pricing-faq details {
+  padding: 0 1.5rem;
+  border-radius: 1.25rem;
+  background: var(--p-sand);
+}
+
+.pricing-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pricing-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.pricing-faq summary::after {
+  content: "+";
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--p-ink);
+  color: var(--p-cream);
+  font-size: 1.25rem;
+}
+
+.pricing-faq details[open] summary::after {
+  content: "–";
+  background: var(--p-green);
+  color: var(--p-ink);
+}
+
+.pricing-faq details p {
+  padding-bottom: 1.25rem;
+  color: var(--p-muted);
+  max-width: 52rem;
+}
+
+/* --------------------------------------------------------------------- cta */
+
+.pricing-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem 3rem;
+  padding: clamp(2rem, 5vw, 3.5rem);
+  border-radius: var(--radius-1);
+  background: var(--p-ink);
+  color: var(--p-cream);
+}
+
+.pricing-cta > div:first-child {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 40rem;
+}
+
+.pricing-cta h2 {
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.pricing-cta p {
+  color: color-mix(in srgb, var(--p-cream) 78%, transparent);
+}
+
+.pricing-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+
+.pricing-cta .m-btn-2 {
+  background: var(--p-cream);
+  color: var(--p-ink);
+}
+
+.pricing-page .pricing-cta .m-link {
+  color: var(--p-green);
+}
+
+/* ------------------------------------------------------------- small screens */
+
+@media (max-width: 63.99rem) {
+  .pricing-hero__inner,
+  .pricing-never {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}

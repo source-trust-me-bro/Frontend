@@ -71,7 +71,7 @@ export function ReaderPlans() {
     <section className="pricing-section" aria-labelledby="readers-title">
       <div className="pricing-section__head">
         <div>
-          <p className="pricing-page__eyebrow">Readers</p>
+          <p className="pricing-eyebrow">Readers</p>
           <h2 id="readers-title">Free news, optional extras</h2>
           <p className="pricing-section__intro">
             The reporting stays free. Paid tiers add convenience and support the desks that

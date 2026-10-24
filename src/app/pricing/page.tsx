@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LandingCta } from "@/features/landing/components/landing-cta";
+import { SiteFooter } from "@/features/landing/components/site-footer";
+import { SiteNav } from "@/features/landing/components/site-nav";
+import "@/styles/pricing.css";
 import { ReaderPlans } from "@/features/pricing/components/reader-plans";
 
 export const metadata: Metadata = {
@@ -24,17 +27,37 @@ const comparison: ComparisonRow[] = [
     supporter: true,
     patron: true,
   },
-  { feature: "The first-week guide for newcomers", free: true, supporter: true, patron: true },
+  {
+    feature: "The first-week guide for newcomers",
+    free: true,
+    supporter: true,
+    patron: true,
+  },
   {
     feature: "Topic following, saved stories and reading history",
     free: true,
     supporter: true,
     patron: true,
   },
-  { feature: "Sources, disclosures and public corrections", free: true, supporter: true, patron: true },
-  { feature: "The editor's weekly briefing", free: false, supporter: true, patron: true },
+  {
+    feature: "Sources, disclosures and public corrections",
+    free: true,
+    supporter: true,
+    patron: true,
+  },
+  {
+    feature: "The editor's weekly briefing",
+    free: false,
+    supporter: true,
+    patron: true,
+  },
   { feature: "Ad-free reading", free: false, supporter: true, patron: true },
-  { feature: "Guest passes", free: false, supporter: false, patron: "2 / month" },
+  {
+    feature: "Guest passes",
+    free: false,
+    supporter: false,
+    patron: "2 / month",
+  },
   { feature: "Newsroom events", free: false, supporter: false, patron: true },
   {
     feature: "Named in the annual transparency report",
@@ -171,200 +194,259 @@ function comparisonValue(value: boolean | string) {
 
 export default function PricingPage() {
   return (
-    <main className="pricing-page">
-      <div className="pricing-page__inner">
-        <nav className="pricing-page__nav" aria-label="Pricing">
-          <Link className="info-page__back" href="/">
-            ← KalevaShorts
-          </Link>
-          <div className="pricing-page__nav-links">
-            <Link href="/funding">How we are funded</Link>
-            <Link href="/dashboard">Open the dashboard</Link>
-          </div>
-        </nav>
-
-        <header className="pricing-page__hero">
-          <p className="pricing-page__eyebrow">Pricing</p>
-          <h1>Pay for the reporting you value. Never for the truth.</h1>
-          <p className="pricing-page__lead">
-            The news is free. Organisations pay for the community channels they rely on. Readers
-            who want more can support the newsroom, and nobody in a vulnerable position is asked to
-            pay for essential information.
-          </p>
-          <p className="pricing-page__note">
-            This is our pricing plan, not a live checkout. Prices are targets in euros, excluding
-            VAT, and become binding only in a signed contract. Anything marked “from” depends on
-            the size of the community and the language work involved.
-          </p>
-        </header>
-
-        <ReaderPlans />
-
-        <section className="pricing-section" aria-labelledby="compare-title">
-          <div className="pricing-section__head">
-            <div>
-              <p className="pricing-page__eyebrow">Compare</p>
-              <h2 id="compare-title">What each reader tier includes</h2>
+    <>
+      <SiteNav base="/" current="/pricing" />
+      <main className="pricing-page" id="main">
+        <section
+          className="pricing-hero on-dark"
+          aria-labelledby="pricing-title"
+        >
+          <div className="pricing-hero__inner l-wrap">
+            <div className="pricing-hero__copy">
+              <p className="pricing-eyebrow">Pricing</p>
+              <h1 className="m-text-2" id="pricing-title">
+                Pay for the reporting you value. <em>Never for the truth.</em>
+              </h1>
+              <p className="pricing-hero__lead">
+                The news is free. Organisations pay for the community channels
+                they rely on. Readers who want more can support the newsroom,
+                and nobody in a vulnerable position is asked to pay for
+                essential information.
+              </p>
+              <p className="pricing-hero__note">
+                This is our pricing plan, not a live checkout. Prices are
+                targets in euros, excluding VAT, and become binding only in a
+                signed contract. Anything marked “from” depends on the size of
+                the community and the language work involved.
+              </p>
             </div>
+            <aside className="pricing-glance" aria-label="Prices at a glance">
+              <p className="pricing-glance__title">At a glance</p>
+              <div className="pricing-glance__row">
+                <span className="pricing-glance__who">Reading the news</span>
+                <span className="pricing-glance__price">Free</span>
+              </div>
+              <div className="pricing-glance__row">
+                <span className="pricing-glance__who">Supporter</span>
+                <span className="pricing-glance__price">
+                  €8 <small>/ month</small>
+                </span>
+              </div>
+              <div className="pricing-glance__row">
+                <span className="pricing-glance__who">Community channel</span>
+                <span className="pricing-glance__price">
+                  From €450 <small>/ month</small>
+                </span>
+              </div>
+              <div className="pricing-glance__row">
+                <span className="pricing-glance__who">Recruitment listing</span>
+                <span className="pricing-glance__price">
+                  €250 <small>/ listing</small>
+                </span>
+              </div>
+            </aside>
           </div>
-          <div className="pricing-table-wrap">
-            <table className="pricing-table">
-              <caption className="sr-only">
-                Reader tier comparison: Free, Supporter and Patron
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Feature</th>
-                  <th scope="col">Free</th>
-                  <th scope="col">Supporter</th>
-                  <th scope="col">Patron</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparison.map((row) => (
-                  <tr key={row.feature}>
-                    <th scope="row">{row.feature}</th>
-                    <td>{comparisonValue(row.free)}</td>
-                    <td>{comparisonValue(row.supporter)}</td>
-                    <td>{comparisonValue(row.patron)}</td>
+        </section>
+
+        <div className="pricing-page__inner">
+          <ReaderPlans />
+
+          <section className="pricing-section" aria-labelledby="compare-title">
+            <div className="pricing-section__head">
+              <div>
+                <p className="pricing-eyebrow">Compare</p>
+                <h2 id="compare-title">What each reader tier includes</h2>
+              </div>
+            </div>
+            <div className="pricing-table-wrap">
+              <table className="pricing-table">
+                <caption className="sr-only">
+                  Reader tier comparison: Free, Supporter and Patron
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Feature</th>
+                    <th scope="col">Free</th>
+                    <th scope="col">Supporter</th>
+                    <th scope="col">Patron</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="pricing-section" aria-labelledby="organisations-title">
-          <div className="pricing-section__head">
-            <div>
-              <p className="pricing-page__eyebrow">Organisations</p>
-              <h2 id="organisations-title">Licences for community channels</h2>
-              <p className="pricing-section__intro">
-                A licence pays for a channel, not for influence. Readers never pay, and payers
-                never choose stories, see drafts early or ask for changes.
-              </p>
-            </div>
-          </div>
-          <div className="pricing-grid pricing-grid--orgs">
-            {organisations.map((org) => (
-              <article className="pricing-card pricing-card--org" key={org.name}>
-                <div className="pricing-card__top">
-                  <h3>{org.name}</h3>
-                </div>
-                <p className="pricing-card__who">{org.who}</p>
-                <p className="pricing-card__price">
-                  {org.price} <small>{org.period}</small>
-                </p>
-                <ul className="pricing-card__features">
-                  {org.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
+                </thead>
+                <tbody>
+                  {comparison.map((row) => (
+                    <tr key={row.feature}>
+                      <th scope="row">{row.feature}</th>
+                      <td>{comparisonValue(row.free)}</td>
+                      <td>{comparisonValue(row.supporter)}</td>
+                      <td>{comparisonValue(row.patron)}</td>
+                    </tr>
                   ))}
-                </ul>
-                <Link className="m-btn-2 pricing-card__cta" href="/dashboard/feedback">
-                  Request a quote
-                </Link>
-              </article>
-            ))}
-          </div>
+                </tbody>
+              </table>
+            </div>
+          </section>
 
-          <aside className="pricing-grant">
-            <div>
-              <h3>Language-protection partnership</h3>
-              <p>
-                Foundations and public funders can support the Sámi and Swedish desks through a
-                grant. The work is reported publicly: what the money paid for, who reviewed it and
-                what was published. A grant never buys approval rights.
+          <section
+            className="pricing-orgs"
+            aria-labelledby="organisations-title"
+          >
+            <div className="pricing-section__head">
+              <div>
+                <p className="pricing-eyebrow">Organisations</p>
+                <h2 id="organisations-title">
+                  Licences for community channels
+                </h2>
+                <p className="pricing-section__intro">
+                  A licence pays for a channel, not for influence. Readers never
+                  pay, and payers never choose stories, see drafts early or ask
+                  for changes.
+                </p>
+              </div>
+            </div>
+            <div className="pricing-grid pricing-grid--orgs">
+              {organisations.map((org) => (
+                <article
+                  className="pricing-card pricing-card--org"
+                  key={org.name}
+                >
+                  <div className="pricing-card__top">
+                    <h3>{org.name}</h3>
+                  </div>
+                  <p className="pricing-card__who">{org.who}</p>
+                  <p className="pricing-card__price">
+                    {org.price} <small>{org.period}</small>
+                  </p>
+                  <ul className="pricing-card__features">
+                    {org.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                  <Link
+                    className="m-btn-2 pricing-card__cta"
+                    href="/dashboard/feedback"
+                  >
+                    Request a quote
+                  </Link>
+                </article>
+              ))}
+            </div>
+
+            <aside className="pricing-grant">
+              <div>
+                <h3>Language-protection partnership</h3>
+                <p>
+                  Foundations and public funders can support the Sámi and
+                  Swedish desks through a grant. The work is reported publicly:
+                  what the money paid for, who reviewed it and what was
+                  published. A grant never buys approval rights.
+                </p>
+              </div>
+              <p className="pricing-grant__price">By agreement</p>
+            </aside>
+          </section>
+
+          <section className="pricing-section" aria-labelledby="addons-title">
+            <div className="pricing-section__head">
+              <div>
+                <p className="pricing-eyebrow">Add-ons</p>
+                <h2 id="addons-title">
+                  Things organisations can buy separately
+                </h2>
+                <p className="pricing-section__intro">
+                  Every item below is labelled where readers can see it and kept
+                  apart from editorial decisions.
+                </p>
+              </div>
+            </div>
+            <ul className="pricing-addons">
+              {addOns.map((addOn) => (
+                <li key={addOn.name}>
+                  <div>
+                    <h3>{addOn.name}</h3>
+                    <p>{addOn.detail}</p>
+                  </div>
+                  <p className="pricing-addons__price">{addOn.price}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="pricing-never" aria-labelledby="never-title">
+            <div className="pricing-never__head">
+              <p className="pricing-eyebrow">The line</p>
+              <h2
+                id="never-title"
+                style={{
+                  fontSize: "clamp(1.875rem, 4vw, 2.75rem)",
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.035em",
+                  fontWeight: 650,
+                }}
+              >
+                What money never buys
+              </h2>
+              <p className="pricing-section__fine">
+                <Link href="/funding">Read the full funding plan</Link> for who
+                pays, why, and how every promise is checked.
               </p>
             </div>
-            <p className="pricing-grant__price">By agreement</p>
-          </aside>
-        </section>
-
-        <section className="pricing-section" aria-labelledby="addons-title">
-          <div className="pricing-section__head">
-            <div>
-              <p className="pricing-page__eyebrow">Add-ons</p>
-              <h2 id="addons-title">Things organisations can buy separately</h2>
-              <p className="pricing-section__intro">
-                Every item below is labelled where readers can see it and kept apart from editorial
-                decisions.
-              </p>
-            </div>
-          </div>
-          <ul className="pricing-addons">
-            {addOns.map((addOn) => (
-              <li key={addOn.name}>
-                <div>
-                  <h3>{addOn.name}</h3>
-                  <p>{addOn.detail}</p>
-                </div>
-                <p className="pricing-addons__price">{addOn.price}</p>
+            <ul className="pricing-never__list">
+              <li>Choosing which stories we cover or skip.</li>
+              <li>
+                Seeing a story before it is published, or asking for changes
+                afterwards.
               </li>
-            ))}
-          </ul>
-        </section>
+              <li>
+                A favourable story. Advertising and recruitment listings are
+                labelled and kept apart from news.
+              </li>
+              <li>
+                Silence about a funder. We decline contracts that ask us to stop
+                reporting critically.
+              </li>
+            </ul>
+          </section>
 
-        <section className="pricing-section" aria-labelledby="never-title">
-          <div className="pricing-section__head">
-            <div>
-              <p className="pricing-page__eyebrow">The line</p>
-              <h2 id="never-title">What money never buys</h2>
+          <section className="pricing-section" aria-labelledby="faq-title">
+            <div className="pricing-section__head">
+              <div>
+                <p className="pricing-eyebrow">Questions</p>
+                <h2 id="faq-title">Before you pay or sign</h2>
+              </div>
             </div>
-          </div>
-          <ul className="info-list pricing-never">
-            <li>Choosing which stories we cover or skip.</li>
-            <li>Seeing a story before it is published, or asking for changes afterwards.</li>
-            <li>
-              A favourable story. Advertising and recruitment listings are labelled and kept apart
-              from news.
-            </li>
-            <li>
-              Silence about a funder. We decline contracts that ask us to stop reporting critically.
-            </li>
-          </ul>
-          <p className="pricing-section__fine">
-            <Link href="/funding">Read the full funding plan</Link> for who pays, why, and how every
-            promise is checked.
-          </p>
-        </section>
-
-        <section className="pricing-section" aria-labelledby="faq-title">
-          <div className="pricing-section__head">
-            <div>
-              <p className="pricing-page__eyebrow">Questions</p>
-              <h2 id="faq-title">Before you pay or sign</h2>
+            <div className="pricing-faq">
+              {faqs.map((faq) => (
+                <details key={faq.question}>
+                  <summary>{faq.question}</summary>
+                  <p>{faq.answer}</p>
+                </details>
+              ))}
             </div>
-          </div>
-          <div className="pricing-faq">
-            {faqs.map((faq) => (
-              <details key={faq.question}>
-                <summary>{faq.question}</summary>
-                <p>{faq.answer}</p>
-              </details>
-            ))}
-          </div>
-        </section>
+          </section>
 
-        <section className="pricing-cta" aria-labelledby="cta-title">
-          <div>
-            <h2 id="cta-title">Start free. Talk to us if you represent an organisation.</h2>
-            <p>
-              Readers can open the newsroom now. Employers, universities, municipalities and funders
-              can ask for a written quote that states what the money pays for and what it does not
-              buy.
-            </p>
-          </div>
-          <div className="pricing-cta__actions">
-            <LandingCta className="m-btn" label="Open KalevaShorts" />
-            <Link className="m-btn-2" href="/dashboard/feedback">
-              Ask for a quote
-            </Link>
-            <Link className="m-link" href="/funding">
-              Read the funding plan
-            </Link>
-          </div>
-        </section>
-      </div>
-    </main>
+          <section className="pricing-cta" aria-labelledby="cta-title">
+            <div>
+              <h2 id="cta-title">
+                Start free. Talk to us if you represent an organisation.
+              </h2>
+              <p>
+                Readers can open the newsroom now. Employers, universities,
+                municipalities and funders can ask for a written quote that
+                states what the money pays for and what it does not buy.
+              </p>
+            </div>
+            <div className="pricing-cta__actions">
+              <LandingCta className="m-btn" label="Open KalevaShorts" />
+              <Link className="m-btn-2" href="/dashboard/feedback">
+                Ask for a quote
+              </Link>
+              <Link className="m-link" href="/funding">
+                Read the funding plan
+              </Link>
+            </div>
+          </section>
+        </div>
+      </main>
+      <SiteFooter base="/" />
+    </>
   );
 }

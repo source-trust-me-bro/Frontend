@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { LandingCta } from "./landing-cta";
 
-const navLinks = [
+const sectionLinks = [
   { href: "#listen", label: "How it works" },
   { href: "#calls", label: "What's built" },
   { href: "#rooms", label: "Events" },
@@ -13,7 +13,26 @@ const navLinks = [
   { href: "#contact", label: "Get involved" },
 ];
 
-export function SiteNav() {
+/**
+ * `base` is "" on the landing page and "/" on other pages, so the in-page links still land on the
+ * right section. `current` marks the page link that is open.
+ */
+export function SiteNav({
+  base = "",
+  current,
+}: {
+  base?: string;
+  current?: "/pricing";
+}) {
+  const navLinks = [
+    ...sectionLinks
+      .slice(0, 2)
+      .map((link) => ({ ...link, href: `${base}${link.href}` })),
+    { href: "/pricing", label: "Pricing" },
+    ...sectionLinks
+      .slice(2)
+      .map((link) => ({ ...link, href: `${base}${link.href}` })),
+  ];
   const [menuOpen, setMenuOpen] = useState(false);
   const barRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -84,18 +103,11 @@ export function SiteNav() {
       <nav className="nav__bar" aria-label="Main" ref={barRef}>
         <a
           className="nav__brand"
-          href="#hero"
+          href={`${base}#hero`}
           aria-label="KalevaShorts, back to top"
         >
-          <svg
-            className="nav__mark"
-            viewBox="0 0 40 28"
-            aria-hidden="true"
-          >
-            <path
-              className="nav__mark-a"
-              d="M3 19C10 5 17 5 21 14s11 9 16-6"
-            />
+          <svg className="nav__mark" viewBox="0 0 40 28" aria-hidden="true">
+            <path className="nav__mark-a" d="M3 19C10 5 17 5 21 14s11 9 16-6" />
             <path
               className="nav__mark-b"
               d="M3 10c7 13 14 13 18 4s11-10 16 5"
@@ -106,7 +118,11 @@ export function SiteNav() {
         <ul className="nav__links m-text-6">
           {navLinks.map((link) => (
             <li key={link.href}>
-              <a className="m-link-2" href={link.href}>
+              <a
+                className="m-link-2"
+                href={link.href}
+                aria-current={link.href === current ? "page" : undefined}
+              >
                 {link.label}
               </a>
             </li>
