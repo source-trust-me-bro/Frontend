@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import {
   articleSummarySchema,
+  clickStatsSchema,
   libraryStateSchema,
   pageSchema,
   sourceSchema,
@@ -56,6 +57,65 @@ export function getFollowingFeed(page: number) {
     `/feeds/following?page=${page}&page_size=20`,
     pageSchema(articleSummarySchema),
   );
+}
+
+/** Stories related to one article, ranked for the reader's communities (newsroom ids). */
+export function getRelatedArticles(
+  articleId: string,
+  communities: string[],
+  limit = 6,
+) {
+  const query = new URLSearchParams({ limit: String(limit) });
+
+  for (const community of communities) {
+    query.append("community", community);
+  }
+
+  return apiRequest(
+    `/articles/${encodeURIComponent(articleId)}/related?${query}`,
+    z.array(articleSummarySchema),
+  );
+}
+
+/** Stories for one newsroom community, ranked from the news tree. */
+export function getCommunityArticles(
+  communityId: string,
+  language: string,
+  limit = 20,
+) {
+  const query = new URLSearchParams({ language, limit: String(limit) });
+
+  return apiRequest(
+    `/feeds/community/${encodeURIComponent(communityId)}?${query}`,
+    z.array(articleSummarySchema),
+  );
+}
+
+/** Only the publisher's URL of a story, with a short timeout for the "Read the original" redirect. */
+export async function getArticleSourceUrl(articleId: string, timeoutMs = 4000) {
+  const article = await apiRequest(
+    `/articles/${encodeURIComponent(articleId)}`,
+    z.object({ url: z.string().nullish() }),
+    { timeoutMs },
+  );
+
+  return article.url ?? null;
+}
+
+export type ClickKind = "open" | "outbound" | "share";
+
+/** Counts one click on a story for the signed-in reader and returns the new totals. */
+export function recordClick(
+  articleId: string,
+  kind: ClickKind,
+  communityId: string | null,
+  timeoutMs?: number,
+) {
+  return apiRequest(`/clicks/${encodeURIComponent(articleId)}`, clickStatsSchema, {
+    method: "POST",
+    body: { kind, community_id: communityId },
+    timeoutMs,
+  });
 }
 
 // ---------------------------------------------------------------- community newsroom

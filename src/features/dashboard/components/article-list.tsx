@@ -1,82 +1,34 @@
-import Link from "next/link";
-
 import type { ArticleSummary } from "@/features/news/schemas";
 import { attempt } from "@/features/news/server/api";
 import { getLibraryState } from "@/features/news/server/data";
 
-import { SaveButton } from "./article-controls";
+import { NewsCard } from "./news-card";
 
-export function formatDate(iso: string | null | undefined): string {
-  if (!iso) {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat("en-FI", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Helsinki",
-  }).format(new Date(iso));
-}
+export { formatDate } from "./format-date";
 
 export function ArticleList({
   articles,
   saved,
   addLabels,
+  communityId,
 }: {
   articles: ArticleSummary[];
   saved?: Set<string> | null;
   /** Show a labelled add button (for example "Add" / "Added") instead of the bookmark icon. */
   addLabels?: [string, string];
+  /** The newsroom community this list is shown for, so outbound clicks count for it. */
+  communityId?: string;
 }) {
   return (
     <ul className="dash-list">
       {articles.map((article) => (
-        <li
-          className={`dash-item${addLabels ? " dash-item--labelled" : ""}`}
+        <NewsCard
           key={article.id}
-        >
-          <span className="dash-item__avatar" aria-hidden="true">
-            {article.source_name.charAt(0).toUpperCase()}
-          </span>
-          <div className="dash-item__body">
-            <div className="dash-item__meta">
-              <span>{article.source_name}</span>
-              <i className="dash-meta__dot" aria-hidden="true" />
-              <span>{article.language.toUpperCase()}</span>
-              {article.author ? (
-                <>
-                  <i className="dash-meta__dot" aria-hidden="true" />
-                  <span>{article.author}</span>
-                </>
-              ) : null}
-            </div>
-            <h3 className="dash-item__title">
-              <Link href={`/dashboard/articles/${article.id}`}>
-                {article.title}
-              </Link>
-            </h3>
-            {article.summary ? (
-              <p className="dash-item__text">{article.summary}</p>
-            ) : null}
-            <time
-              className="dash-item__time"
-              dateTime={article.published_at ?? article.created_at}
-            >
-              {formatDate(article.published_at ?? article.created_at)}
-            </time>
-          </div>
-          {saved ? (
-            <SaveButton
-              articleId={article.id}
-              saved={saved.has(article.id)}
-              withLabel={Boolean(addLabels)}
-              labels={addLabels}
-            />
-          ) : null}
-        </li>
+          article={article}
+          saved={saved ? saved.has(article.id) : undefined}
+          addLabels={addLabels}
+          communityId={communityId}
+        />
       ))}
     </ul>
   );
@@ -86,9 +38,11 @@ export function ArticleList({
 export async function StoryList({
   articles,
   addLabels,
+  communityId,
 }: {
   articles: ArticleSummary[];
   addLabels?: [string, string];
+  communityId?: string;
 }) {
   const state = await attempt(getLibraryState);
 
@@ -97,6 +51,7 @@ export async function StoryList({
       articles={articles}
       saved={state.ok ? new Set(state.data.saved) : null}
       addLabels={addLabels}
+      communityId={communityId}
     />
   );
 }

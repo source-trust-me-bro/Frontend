@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "@/styles/landing.css";
 import "@/styles/workspace.css";
 import "@/styles/dashboard.css";
+import "@/styles/news-card.css";
 
 const siteDescription =
   "KalevaShorts is a multilingual news intelligence platform. It gathers reporting in Finnish, English and Swedish, organises it in a topic tree, and is being built so agents can compare accounts across languages and keep the evidence behind every claim.";

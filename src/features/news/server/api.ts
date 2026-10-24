@@ -53,6 +53,11 @@ const sessionToken = cache(async (): Promise<string | null> => {
   return getToken();
 });
 
+/** Whether the caller has a Clerk session token to send to FastAPI. */
+export async function hasSessionToken(): Promise<boolean> {
+  return Boolean(await sessionToken());
+}
+
 /** Calls FastAPI with the caller's Clerk session token as a Bearer token. */
 export async function apiRequest<T>(
   path: string,

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, MousePointerClick, Users } from "lucide-react";
 import { z } from "zod";
 
 import {
@@ -16,11 +16,14 @@ import {
 import { ErrorPanel } from "@/features/dashboard/components/dashboard-shell";
 import {
   articleDetailSchema,
-  articleSummarySchema,
   translationSchema,
 } from "@/features/news/schemas";
 import { apiRequest, attempt, getProfile } from "@/features/news/server/api";
-import { getLibraryState } from "@/features/news/server/data";
+import {
+  getFollows,
+  getLibraryState,
+  getRelatedArticles,
+} from "@/features/news/server/data";
 import { Markdown } from "@/features/community/components/markdown";
 
 export const metadata: Metadata = {
@@ -52,10 +55,16 @@ async function Article({
         `/articles/${safeId}/translations`,
         z.array(translationSchema),
       ).catch(() => []),
-      apiRequest(
-        `/articles/${safeId}/related`,
-        z.array(articleSummarySchema),
-      ).catch(() => []),
+      // Related stories are ranked for the newsroom communities the reader follows.
+      getFollows()
+        .catch(() => [])
+        .then((follows) =>
+          getRelatedArticles(
+            id,
+            follows.filter((card) => card.kind === "community").map((card) => card.id),
+          ),
+        )
+        .catch(() => []),
     ]);
 
     const [library, profile] = await Promise.all([
@@ -98,6 +107,14 @@ async function Article({
           </time>
         </div>
         <h1 className="dash-article__title">{article.title}</h1>
+        {article.image_url ? (
+          <figure className="dash-article__photo">
+            {/* The publisher's own image, hotlinked and credited. Never copied. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={article.image_url} alt="" referrerPolicy="no-referrer" />
+            <figcaption>Photo: {article.source_name}</figcaption>
+          </figure>
+        ) : null}
         {article.summary ? (
           <p className="dash-article__dek">{article.summary}</p>
         ) : null}
@@ -116,19 +133,39 @@ async function Article({
               following={profile.followed_source_ids.includes(article.source_id)}
             />
           ) : null}
-          <a
-            className="dash-secondary"
-            href={article.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read the original{" "}
-            <ExternalLink className="dash-icon" aria-hidden="true" />
-          </a>
+          {/^https?:\/\//i.test(article.url) ? (
+            // The route counts the click, then redirects to the publisher.
+            <a className="dash-secondary" href={`/go/${article.id}`}>
+              Read the original{" "}
+              <ExternalLink className="dash-icon" aria-hidden="true" />
+            </a>
+          ) : null}
         </div>
-        {article.content ? (
+        <p className="dash-article__stats">
+          <span title="Readers who opened this story">
+            <Users className="dash-icon" aria-hidden="true" />{" "}
+            {article.clicks?.open_users ?? 0} readers
+          </span>
+          <i className="dash-meta__dot" aria-hidden="true" />
+          <span title="Readers who clicked the original report">
+            <MousePointerClick className="dash-icon" aria-hidden="true" />{" "}
+            {article.clicks?.outbound_users ?? 0} opened the source
+          </span>
+        </p>
+        {article.basic_info && article.explanation ? (
+          <>
+            <section className="dash-article__text" aria-labelledby="story-what-happened">
+              <h2 id="story-what-happened">What happened</h2>
+              <Markdown text={article.basic_info} />
+            </section>
+            <section className="dash-article__text" aria-labelledby="story-what-it-means">
+              <h2 id="story-what-it-means">What it means for you</h2>
+              <Markdown text={article.explanation} />
+            </section>
+          </>
+        ) : article.content || article.explanation ? (
           <div className="dash-article__text">
-            <Markdown text={article.content} />
+            <Markdown text={article.content || article.explanation || ""} />
           </div>
         ) : null}
 

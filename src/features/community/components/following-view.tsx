@@ -72,7 +72,13 @@ export async function FollowingStoriesView() {
                 {card.name.charAt(0).toUpperCase()}
               </span>
               <span className="dash-follow-row__name">
-                {card.name}
+                {card.kind === "community" ? (
+                  <Link href={`/dashboard/community/${encodeURIComponent(card.id)}`}>
+                    {card.name}
+                  </Link>
+                ) : (
+                  card.name
+                )}
                 <small>{card.kind === "official" ? "Official source" : "Community"}</small>
               </span>
               <FollowToggle kind={card.kind} targetId={card.id} name={card.name} following />

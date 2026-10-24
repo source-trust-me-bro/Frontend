@@ -42,6 +42,17 @@ export const userProfileSchema = z.object({
 });
 export type UserProfile = z.infer<typeof userProfileSchema>;
 
+/** How many readers opened a story, clicked through to its source, or shared it. */
+export const clickStatsSchema = z.object({
+  open_users: z.number().default(0),
+  open_total: z.number().default(0),
+  outbound_users: z.number().default(0),
+  outbound_total: z.number().default(0),
+  share_users: z.number().default(0),
+  share_total: z.number().default(0),
+});
+export type ClickStats = z.infer<typeof clickStatsSchema>;
+
 export const articleSummarySchema = z.object({
   id: z.string(),
   source_id: z.string().nullish(),
@@ -54,6 +65,13 @@ export const articleSummarySchema = z.object({
   published_at: z.string().nullish(),
   topic_ids: z.array(z.string()).default([]),
   created_at: z.string(),
+  image_url: z.string().nullish(),
+  basic_info: z.string().nullish(),
+  explanation: z.string().nullish(),
+  event_id: z.string().nullish(),
+  community_id: z.string().nullish(),
+  reasons: z.array(z.string()).default([]),
+  clicks: clickStatsSchema.nullish(),
 });
 export type ArticleSummary = z.infer<typeof articleSummarySchema>;
 

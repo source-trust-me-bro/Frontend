@@ -76,7 +76,7 @@ export async function NewsroomDesk({
           </>
         ) : null}
       </div>
-      <AutoRefresh active={running} everyMs={3000} />
+      <AutoRefresh active={running} everyMs={8000} />
       {cycle?.ok && cycle.data.progress && (cycle.data.progress.running || cycle.data.progress.outcome) ? (
         <CycleProgressPanel progress={cycle.data.progress} />
       ) : cycle?.ok && cycle.data.status !== "idle" ? (
