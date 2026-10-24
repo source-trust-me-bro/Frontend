@@ -3,10 +3,12 @@ import { Suspense } from "react";
 import { SignIn } from "@clerk/nextjs";
 import Link from "next/link";
 
+import { AuthGate } from "@/features/auth/components/auth-gate";
+
 export const metadata: Metadata = {
   title: "Sign in",
   description:
-    "Sign in to your KalevaShorts dashboard with Clerk to sync your bilingual Finnish–English reading profile.",
+    "Sign in to your KalevaShorts dashboard to read your personalised, multilingual news feed.",
 };
 
 export const instant = false;
@@ -33,11 +35,13 @@ export default function SignInPage() {
           <span className="workspace__brand-word">KalevaShorts</span>
         </Link>
         <p className="auth-page__copy">
-          Sign in to open your dashboard, choose English or Suomi, and keep
-          one verified reading trail.
+          Sign in to open your feed, pick your language and topics, and keep
+          your saved stories and reading history in one place.
         </p>
         <Suspense fallback={<p className="auth-page__copy">Loading sign in…</p>}>
-          <SignIn />
+          <AuthGate>
+            <SignIn />
+          </AuthGate>
         </Suspense>
       </div>
     </main>

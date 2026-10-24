@@ -3,21 +3,21 @@ import { ClerkProvider } from "@clerk/nextjs";
 
 import "@/styles/landing.css";
 import "@/styles/workspace.css";
+import "@/styles/dashboard.css";
 
 const siteDescription =
-  "KalevaShorts is an open-source bilingual Finnish–English news platform that ingests Finnish and English reporting, links every claim to its source, and gives communities a verifiable cross-language reading experience.";
+  "KalevaShorts is a multilingual news intelligence platform. It gathers reporting in Finnish, English and Swedish, organises it in a topic tree, and is being built so agents can compare accounts across languages and keep the evidence behind every claim.";
 
 export const metadata: Metadata = {
   title: {
-    default: "KalevaShorts — Verified news in Finnish and English",
+    default: "KalevaShorts — Multilingual news intelligence",
     template: "%s · KalevaShorts",
   },
   description: siteDescription,
-  generator: "8B Templates",
   applicationName: "KalevaShorts",
   openGraph: {
     type: "website",
-    title: "KalevaShorts — Verified news in Finnish and English",
+    title: "KalevaShorts — Multilingual news intelligence",
     description: siteDescription,
     siteName: "KalevaShorts",
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KalevaShorts — Verified news in Finnish and English",
+    title: "KalevaShorts — Multilingual news intelligence",
     description: siteDescription,
   },
 };

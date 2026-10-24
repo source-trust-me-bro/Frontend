@@ -9,7 +9,7 @@
 
 import type { CSSProperties } from "react";
 
-import { ContactForm } from "./contact-form";
+import { ContactPanel } from "./contact-form";
 import { LandingCta } from "./landing-cta";
 import { LandingMotion } from "./landing-motion";
 import { SiteNav } from "./site-nav";
@@ -90,7 +90,7 @@ const waveform = [
 
 const feeds = [
   {
-    label: "Local · Helsinki",
+    label: "Nordic · Local",
     image: counterImage,
     sizes: "(max-width: 767px) 90vw, 17vw",
     width: 1600,
@@ -98,21 +98,21 @@ const feeds = [
     alt: "A woman with a backpack orders at a café counter",
     background: "#40260c",
     source: "The council meeting starts at 17:00.",
-    translation: "Kaupunginvaltuusto kokoontuu kello 17.",
+    translation: "Disputed: the vote count differs.",
   },
   {
-    label: "Nordic · Stockholm",
+    label: "Economy · Energy",
     image: tableImage,
     sizes: "(max-width: 767px) 90vw, 22vw",
     width: 1600,
     height: 1803,
     alt: "A family laughs together over lunch at a home table",
     background: "#c0c0c0",
-    source: "The committee wants an independent review.",
-    translation: "Valiokunta haluaa riippumattoman tarkastuksen.",
+    source: "Electricity prices fell for a third week.",
+    translation: "Sähkön hinta laski kolmatta viikkoa.",
   },
   {
-    label: "Europe · Brussels",
+    label: "Europe · Policy",
     image: clinicImage,
     sizes: "(max-width: 767px) 90vw, 17vw",
     width: 1600,
@@ -123,7 +123,7 @@ const feeds = [
     translation: "Ehdotus siirtyy valiokuntaan torstaina.",
   },
   {
-    label: "Science · Tampere",
+    label: "Science · Research",
     image: talkImage,
     sizes: "(max-width: 767px) 90vw, 17vw",
     width: 1600,
@@ -134,55 +134,55 @@ const feeds = [
     translation: "Tutkimus on avoin vertaisarvioinnille.",
   },
   {
-    label: "Community · Turku",
+    label: "Technology · AI",
     image: cornerImage,
     sizes: "(max-width: 767px) 90vw, 19vw",
     width: 1600,
     height: 2092,
     alt: "Neighbours sit and chat outside a shop on a cobbled street",
     background: "#404040",
-    source: "Neighbours meet on Saturday at ten.",
-    translation: "Naapurit tapaavat lauantaina kello kymmenen.",
+    source: "The regulator opened a public consultation.",
+    translation: "Viranomainen avasi julkisen kuulemisen.",
   },
 ];
 
 const callSteps = [
   {
-    title: "Every article keeps its source",
-    body: "Headlines arrive with the outlet, reporter, publication time and a direct link to the original reporting.",
+    title: "Collection you can audit",
+    body: "Stories are gathered from news sources, duplicates are skipped, and every collection run records how many stories were added, updated, skipped or failed.",
   },
   {
-    title: "Language switching, in place",
-    body: "Read the same story in English or Finnish without losing the paragraph you were on.",
+    title: "Language-aware feeds",
+    body: "Each reader gets a feed in their language, narrowed to the topics they follow and the community they belong to.",
   },
   {
-    title: "Cross-language alignment",
-    body: "Sentences are paired across languages, so you can compare the translation with the original line by line.",
+    title: "A topic tree, not a flat list",
+    body: "Stories are filed under nested topics. Editors can add branches and keywords, and new stories are matched to them automatically.",
   },
   {
-    title: "Claims under review",
-    body: "Unverified statements are labelled and linked to the outlets that confirm, dispute or add context.",
+    title: "Search across languages",
+    body: "Search finds related coverage across languages, even when the wording differs.",
   },
   {
-    title: "Keep the verification trail",
-    body: "Pin a story and keep its sources, revisions and language versions together in one place.",
+    title: "Evidence, not just summaries",
+    body: "Next up: agents extract claims, look for independent reporting, and keep supporting and contradicting sources side by side.",
   },
 ];
 
 const tuneSettings = [
   {
-    title: "Headline size",
-    body: "From a compact briefing to a full reading view.",
+    title: "Topic interests",
+    body: "Pick topics and the For you feed narrows to them.",
     control: "size",
   },
   {
-    title: "Reading weight",
-    body: "Lighter or bolder text for long sessions.",
+    title: "Sources you follow",
+    body: "Follow outlets and read their latest stories in one tab.",
     control: "weight",
   },
   {
-    title: "Contrast",
-    body: "Light, dark, or follow your system.",
+    title: "Reading language",
+    body: "English or Finnish as your lead language.",
     control: "contrast",
   },
 ];
@@ -191,82 +191,87 @@ const faqs = [
   {
     question: "What is KalevaShorts?",
     answer:
-      "KalevaShorts is an open-source bilingual Finnish–English news platform. It ingests reporting in Finnish and English, aligns translations with the original text, and keeps every claim attached to its source.",
+      "KalevaShorts is a multilingual news intelligence platform. It collects reporting in several languages, organises it in a topic tree, and is being built so that agents can investigate stories, compare accounts and keep the evidence behind every claim.",
   },
   {
-    question: "Which languages are supported today?",
+    question: "What works today, and what is still being built?",
     answer:
-      "The first release is bilingual: English and Finnish across the feed, translation view and editor workspace. Each profile stores a single lead language so the reader and the FastAPI service stay in sync.",
+      "Today: story collection from news sources, a topic tree, communities, language-aware feeds, search, saved stories, reading history, downloads and following. Still being built, in order: story discovery, claim investigation and evidence, event and topic-tree curation, then community-specific editing.",
   },
   {
-    question: "How do you verify a story?",
+    question: "Which languages are supported?",
     answer:
-      "Each article carries its outlet, reporter, publication time and a link to the original. Claims can be cross-checked against other outlets, labelled as confirmed, disputed or still under review, and the trail stays visible to readers.",
+      "English and Finnish are the focus, with Swedish also supported. More languages can be added as coverage grows.",
   },
   {
-    question: "Is the translation automatic?",
+    question: "How will claims be verified?",
     answer:
-      "Translations are generated automatically and aligned sentence by sentence with the original. Community editors can correct them, and readers can always open the source text beside the translation.",
+      "Each claim becomes an evidence record that lists the sources that support it, the sources that contradict it, who said it, and what is still unknown. Syndicated copies are not counted as independent confirmation, and contradictions are kept rather than averaged away.",
   },
   {
-    question: "Do I need an account to read?",
+    question: "Where does the news come from, and what about copyright?",
     answer:
-      "You can explore the landing page without an account. The dashboard, saved stories, language preferences and editor tools require a Clerk session so the FastAPI profile can stay in sync.",
+      "BBC News is the first source, with more added over time. We respect each source's terms, store article text only where permitted, and always link back to the original report.",
   },
   {
-    question: "Can I self-host the platform?",
+    question: "Do I need an account?",
     answer:
-      "Yes. The stack is a Next.js frontend, Clerk for authentication and a FastAPI service backed by MongoDB. All configuration lives in three environment variables, so a self-hosted instance stays portable.",
+      "Yes. A free account gives you a personalised feed, saved stories, reading history and the sources you follow, on every device.",
   },
   {
-    question: "How do editor roles work?",
+    question: "Who can edit sources and topics?",
     answer:
-      "Roles are stored in Clerk session metadata. The editor workspace verifies editor or admin access on the server before rendering any controls, and the API receives the same Clerk bearer token.",
-  },
-  {
-    question: "Is the code open source?",
-    answer:
-      "Yes. The platform is open source under the MIT license. This landing page is adapted from the 8B App Landing Page Template.",
+      "Every account starts as a reader. Editors and admins can add sources, run ingestion, manage topics and read reader feedback. Roles are checked every time you act, not just when a page loads.",
   },
 ];
 
 const voicePanels = [
   {
-    label: "Source feed · English",
+    label: "Claim",
     className: "m-caption",
-    text: "The council approved the new budget on Tuesday.",
+    text: "Claim: the council approved the new budget on Tuesday.",
   },
   {
-    label: "Translation · Suomi",
+    label: "Evidence",
     className: "m-caption",
-    text: "Valtuusto hyväksyi uuden budjetin tiistaina.",
+    text: "Supported by two independent outlets in Finnish and English.",
+  },
+  {
+    label: "Dispute",
+    className: "m-caption",
+    text: "A third report gives a different vote count, so it is flagged.",
+  },
+  {
+    label: "Record",
+    className: "m-caption",
+    text: "Both accounts stay on the record, each with its source.",
   },
 ];
 
 const verificationCards = [
   {
-    title: "Source-first",
-    body: "Every article carries a link to the original outlet, reporter and publication time.",
+    title: "Provenance on every claim",
+    body: "Each claim keeps its source, timestamp and attribution, so you can see who said it and where.",
   },
   {
-    title: "Bilingual by default",
-    body: "Finnish and English are aligned sentence by sentence, not stitched together.",
+    title: "Contradictions are kept",
+    body: "When outlets disagree, both accounts stay on the record instead of being forced into a false consensus.",
   },
   {
-    title: "Community curation",
-    body: "Local editors can curate topics, correct translations and flag claims for review.",
+    title: "The original is one click away",
+    body: "Every story links straight to the publisher's own report, so you can check it yourself.",
   },
   {
-    title: "Self-hostable",
-    body: "Next.js, FastAPI and MongoDB run from three environment variables and a single repository.",
+    title: "Proposals before commits",
+    body: "Agents propose facts and topic-tree changes with evidence; only validated changes become authoritative.",
   },
   {
-    title: "Transparent revisions",
-    body: "Corrections keep their history, so readers can see what changed and when.",
+    title: "Honest uncertainty",
+    body: "Unknowns are shown as unknowns. Model confidence is never presented as a calibrated probability.",
   },
   {
-    title: "No engagement ranking",
-    body: "The feed is ordered by recency and verification state, not by outrage.",
+    title: "No single voice dominates",
+    body: "Feeds balance relevance with variety, so one publisher or viewpoint can't take over.",
   },
 ];
 
@@ -329,7 +334,7 @@ export function LandingPage() {
                     <i></i>
                   </span>
                   <span className="m-caption__text">
-                    The council approved the budget on Tuesday.
+                    Claim: the budget passed on Tuesday.
                   </span>
                 </p>
               </div>
@@ -342,7 +347,7 @@ export function LandingPage() {
                     <i></i>
                   </span>
                   <span className="m-caption__text">
-                    Valtuusto hyväksyi budjetin tiistaina.
+                    Supported by two independent outlets.
                   </span>
                 </p>
               </div>
@@ -364,38 +369,39 @@ export function LandingPage() {
           <div className="hero__copy l-wrap">
             <div className="hero__intro">
               <h1 className="m-text-2 hero__title" id="hero-title">
-                Every story, readable in your language.
+                Follow a story across every language it was told in.
               </h1>
               <div className="hero__lower">
                 <p className="m-text-4 hero__lead">
-                  KalevaShorts brings Finnish and English reporting into one
-                  calm reading surface — with the original text and every
-                  source still in view.
+                  KalevaShorts is a multilingual news intelligence platform.
+                  It gathers reporting in several languages, organises it in a
+                  living topic tree, and is being built to check claims against
+                  independent sources.
                 </p>
                 <ul className="hero__proof m-text-6">
                   <li>
                     <svg viewBox="0 0 16 16" aria-hidden="true">
                       <path className="hero__tick" d="M3 8.5l3 3 7-7" />
                     </svg>
-                    Open source under MIT
+                    Evidence behind every claim
                   </li>
                   <li>
                     <svg viewBox="0 0 16 16" aria-hidden="true">
                       <path className="hero__tick" d="M3 8.5l3 3 7-7" />
                     </svg>
-                    Self-hostable FastAPI + MongoDB
+                    Original report linked on every story
                   </li>
                   <li>
                     <svg viewBox="0 0 16 16" aria-hidden="true">
                       <path className="hero__tick" d="M3 8.5l3 3 7-7" />
                     </svg>
-                    English · Suomi
+                    English · Suomi · Svenska
                   </li>
                 </ul>
                 <div className="hero__actions">
-                  <LandingCta className="m-btn" label="Start reading free" />
+                  <LandingCta className="m-btn" label="Create a free account" />
                   <a className="m-link m-text-6" href="#listen">
-                    See how verification works
+                    See how a story is checked
                   </a>
                 </div>
               </div>
@@ -413,22 +419,23 @@ export function LandingPage() {
           <div className="listen__sheet m-band" aria-hidden="true"></div>
           <div className="listen__head l-wrap">
             <h2 className="m-text-3 listen__title" id="listen-title">
-              Nothing lost between a source and a reader.
+              Every claim stays attached to its evidence.
             </h2>
             <p
               className="m-text-4 listen__lead"
               data-8b-motion="readAlong"
             >
-              Every story arrives with its original language, a translation you
-              can compare line by line, and a record of where each claim came
-              from. Nothing is smoothed over.
+              Each article is stored with its source, language and
+              publication time. Each claim pulled from it points to the reports
+              that support or contradict it. Disagreements are recorded, not
+              smoothed over.
             </p>
           </div>
           <div className="listen__hold">
             <div className="listen__stage l-wrap">
               <div className="listen__panels">
                 <div className="listen__panel listen__panel--voice">
-                  <p className="m-text-6 listen__label">Source feed</p>
+                  <p className="m-text-6 listen__label">Incoming reports</p>
                   <div className="listen__wave" aria-hidden="true">
                     {waveform.map((height, index) => (
                       <i
@@ -446,7 +453,7 @@ export function LandingPage() {
                 </div>
                 <div className="listen__panel listen__panel--read">
                   <p className="m-text-6 listen__label">
-                    Cross-language read
+                    Evidence record
                   </p>
                   <div className="listen__track listen__track--read">
                     {voicePanels.map((panel) => (
@@ -493,15 +500,15 @@ export function LandingPage() {
                 id="calls-title"
                 data-8b-motion="captionIn"
               >
-                A feed that shows its work.
+                A newsroom that shows its work.
               </h2>
               <div className="calls__head-copy">
                 <p className="m-text-4 calls__lead">
-                  KalevaShorts reads the original, aligns the translation and marks
-                  the source of every claim. You decide how much detail to
-                  open.
+                  What exists today is the foundation: ingestion, storage,
+                  topics, feeds and search. The investigating agents build on
+                  it, one phase at a time.
                 </p>
-                <LandingCta className="m-btn" label="Open your feed" />
+                <LandingCta className="m-btn" label="Open the dashboard" />
               </div>
             </div>
             <div className="calls__grid">
@@ -518,26 +525,27 @@ export function LandingPage() {
                   <div className="calls__device">
                     <figure
                       className="phone"
-                      aria-label="Example of a verified story on KalevaShorts"
+                      aria-label="Illustration of the planned investigation flow"
                     >
                       <div className="phone__screen">
                         <div className="phone__top">
-                          <p className="phone__who">Nordic desk</p>
+                          <p className="phone__who">Budget vote</p>
                           <p className="phone__state">
                             <span
                               className="phone__dot"
                               aria-hidden="true"
                             ></span>
-                            Live verification · 02:14
+                            Investigating · 5 reports
                           </p>
                           <span className="phone__end" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                              <path d="M4 14c4-4 12-4 16 0l-2 3-3-1v-2c-2-1-4-1-6 0v2l-3 1z" />
+                              <path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z" />
+                              <path d="M9 12l2 2 4-4" />
                             </svg>
                           </span>
                         </div>
                         <p className="phone__number" data-step="2">
-                          Language · English
+                          Topic · Politics
                         </p>
                         <ol className="phone__log">
                           <li className="phone__msg" data-step="1">
@@ -552,7 +560,7 @@ export function LandingPage() {
                                 <i></i>
                               </span>
                               <span className="m-caption__text">
-                                Municipal budget passed 42–18 on Tuesday.
+                                Claim: the budget passed 42–18 on Tuesday.
                               </span>
                             </p>
                           </li>
@@ -571,15 +579,15 @@ export function LandingPage() {
                                 <i></i>
                               </span>
                               <span className="m-caption__text">
-                                Read in Suomi — 18 paragraphs aligned.
+                                Searching Finnish and English coverage.
                               </span>
                             </p>
                             <p className="phone__note">
-                              Translation view · source kept in step
+                              Found 5 reports · 2 are syndicated copies
                             </p>
                           </li>
                           <li className="phone__cue" data-step="4">
-                            Cross-checking with two regional outlets
+                            Checking independent outlets
                           </li>
                           <li className="phone__msg" data-step="4">
                             <p className="m-caption">
@@ -593,7 +601,7 @@ export function LandingPage() {
                                 <i></i>
                               </span>
                               <span className="m-caption__text">
-                                Both outlets report the same vote count.
+                                Two independent outlets report 42–18.
                               </span>
                             </p>
                           </li>
@@ -612,7 +620,7 @@ export function LandingPage() {
                                 <i></i>
                               </span>
                               <span className="m-caption__text">
-                                Saved with four linked sources.
+                                Evidence record saved with 3 sources.
                               </span>
                             </p>
                           </li>
@@ -628,44 +636,30 @@ export function LandingPage() {
                             />
                             <path d="M8 11V8a4 4 0 0 1 8 0v3" />
                           </svg>
-                          Verification trail saved
+                          Provenance saved
                         </p>
                         <div className="phone__bar" aria-hidden="true">
                           <span>
                             <svg viewBox="0 0 24 24">
-                              <path d="M4 10v4h4l5 4V6L8 10zM16 9a4 4 0 0 1 0 6" />
+                              <path d="M5 5h11v14H7a2 2 0 0 1-2-2zM16 9h3v8a2 2 0 0 1-2 2M8 9h5M8 12h5M8 15h3" />
                             </svg>
                             Feed
                           </span>
                           <span>
                             <svg viewBox="0 0 24 24">
-                              <rect
-                                x="9"
-                                y="3"
-                                width="6"
-                                height="11"
-                                rx="3"
-                              />
-                              <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+                              <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
                             </svg>
                             Sources
                           </span>
                           <span>
                             <svg viewBox="0 0 24 24">
-                              <rect
-                                x="3"
-                                y="6"
-                                width="18"
-                                height="12"
-                                rx="2"
-                              />
-                              <path d="M7 10h1M11 10h1M15 10h1M8 14h8" />
+                              <path d="M4 6h9M8.5 4v2M6 6c.5 3 2.5 5.5 5 7M12 6c-.5 3-3 6-7 8M13 20l4-9 4 9M14.5 17h5" />
                             </svg>
                             Language
                           </span>
                           <span>
                             <svg viewBox="0 0 24 24">
-                              <path d="M6 6h.01M12 6h.01M18 6h.01M6 12h.01M12 12h.01M18 12h.01M6 18h.01M12 18h.01M18 18h.01" />
+                              <path d="M7 4h10v16l-5-4-5 4z" />
                             </svg>
                             Saved
                           </span>
@@ -693,7 +687,7 @@ export function LandingPage() {
                 <span>
                   <i aria-hidden="true"></i>Live preview
                 </span>
-                <span>English · Verified · Dark</span>
+                <span>English · For you · Synced</span>
               </p>
               <p className="tune__sample m-text-2">
                 <span
@@ -720,9 +714,8 @@ export function LandingPage() {
                   The feed, set your way.
                 </h2>
                 <p className="m-text-4">
-                  Choose how much source detail sits beside each story, and
-                  which language leads. KalevaShorts keeps that choice on every
-                  device.
+                  Choose your language, topics and sources. The choices live on
+                  your account, so every device shows the same feed.
                 </p>
               </div>
               <ul className="tune__settings">
@@ -742,8 +735,8 @@ export function LandingPage() {
                       {setting.control === "contrast" ? (
                         <>
                           <b className="tune__pill"></b>
-                          <span>Light</span>
-                          <span>Dark</span>
+                          <span>English</span>
+                          <span>Suomi</span>
                         </>
                       ) : (
                         <>
@@ -755,18 +748,18 @@ export function LandingPage() {
                   </li>
                 ))}
                 <li className="tune__row">
-                  <h3 className="m-text-5">Preferred language</h3>
+                  <h3 className="m-text-5">Supported languages</h3>
                   <p className="m-text-8">
-                    English or Finnish as your lead reading language.
+                    English and Finnish, with Swedish also supported.
                   </p>
                   <span className="tune__ctl tune__tag" aria-hidden="true">
-                    EN · FI
+                    EN · FI · SV
                   </span>
                 </li>
                 <li className="tune__row">
-                  <h3 className="m-text-5">Verified sources only</h3>
+                  <h3 className="m-text-5">Audio playback</h3>
                   <p className="m-text-8">
-                    Show stories that carry at least two independent sources.
+                    Listen to any story with your browser&rsquo;s speech engine.
                   </p>
                   <span
                     className="tune__ctl tune__toggle"
@@ -774,18 +767,18 @@ export function LandingPage() {
                   ></span>
                 </li>
                 <li className="tune__row">
-                  <h3 className="m-text-5">Source languages</h3>
+                  <h3 className="m-text-5">Saved and downloads</h3>
                   <p className="m-text-8">
-                    Follow reporting in Finnish and English.
+                    Bookmark stories and keep a text copy for offline reading.
                   </p>
                   <span className="tune__ctl tune__tag" aria-hidden="true">
-                    2 active
+                    On account
                   </span>
                 </li>
                 <li className="tune__row">
-                  <h3 className="m-text-5">Hide unverified claims</h3>
+                  <h3 className="m-text-5">Reading history</h3>
                   <p className="m-text-8">
-                    Collapse statements that are still under review.
+                    Pick up where you left off, and clear it whenever you like.
                   </p>
                   <span
                     className="tune__ctl tune__toggle"
@@ -795,7 +788,7 @@ export function LandingPage() {
                 <li className="tune__row">
                   <h3 className="m-text-5">Sync across devices</h3>
                   <p className="m-text-8">
-                    Your language and source preferences follow your account.
+                    Preferences, bookmarks and follows are stored server-side.
                   </p>
                   <span
                     className="tune__ctl tune__toggle"
@@ -821,21 +814,21 @@ export function LandingPage() {
               id="rooms-title"
               data-8b-motion="captionIn"
             >
-              Five streams. One verified picture.
+              One event, many reports, every language.
             </h2>
             <p
               className="m-text-4 rooms__lead"
               data-8b-motion="readAlong"
             >
-              Follow municipal reporting, Nordic coverage, European policy,
-              science and community briefings — each with its own sources in
-              Finnish and English.
+              Reports from different publishers and languages are grouped
+              around a single event, so you can follow its timeline instead of
+              a pile of near-identical headlines.
             </p>
           </div>
           <div className="rooms__hold">
             <div className="rooms__stage">
               <p className="rooms__now m-text-6">
-                <i aria-hidden="true"></i>All streams · every source linked
+                <i aria-hidden="true"></i>Example headlines · every source linked
               </p>
               <div className="rooms__track">
                 <svg
@@ -926,7 +919,7 @@ export function LandingPage() {
               id="voices-title"
               data-8b-motion="captionIn"
             >
-              Built in the open. Checked in Finnish and English.
+              Built to be audited, not just trusted.
             </h2>
             <div className="voices__grid">
               <figure className="voices__expert">
@@ -948,8 +941,8 @@ export function LandingPage() {
                   data-8b-motion="readAlong"
                 >
                   <p>
-                    “A translation is only trustworthy when the reader can
-                    still see the original.”
+                    “A claim is only as good as the evidence you can check
+                    for yourself.”
                   </p>
                 </blockquote>
                 <figcaption className="voices__who m-text-6">
@@ -960,9 +953,9 @@ export function LandingPage() {
                     </svg>
                   </span>
                   <p>
-                    KalevaShorts maintainers
+                    Design principle
                     <br />
-                    <span>Open-source project</span>
+                    <span>What we hold ourselves to</span>
                   </p>
                 </figcaption>
               </figure>
@@ -1003,11 +996,11 @@ export function LandingPage() {
                 id="setup-title"
                 data-8b-motion="captionIn"
               >
-                Three steps, then just read.
+                From a headline to a filed event.
               </h2>
               <p className="m-text-4">
-                No installer and no proprietary lock-in. Sign in, choose
-                English or Finnish, and start with a verified feed.
+                Ingestion, storage, topics and feeds are built. The
+                investigating agents arrive in the next phases.
               </p>
             </div>
             <ol className="setup__steps">
@@ -1019,10 +1012,10 @@ export function LandingPage() {
                   1
                 </p>
                 <div className="setup__copy">
-                  <h3 className="m-text-5">Sign in with Clerk</h3>
+                  <h3 className="m-text-5">Discover and ingest</h3>
                   <p className="m-text-8">
-                    One account gives you a synced profile, saved stories and
-                    editor tools when your role allows it.
+                    Stories are gathered from news sources, and each one is
+                    kept once, with its original link.
                   </p>
                 </div>
                 <div className="setup__ui m-text-6" aria-hidden="true">
@@ -1031,21 +1024,21 @@ export function LandingPage() {
                       <circle cx="12" cy="12" r="9" />
                       <path d="M8 12.5l2.5 2.5L16 9.5" />
                     </svg>
-                    Secure session created
+                    Sources checked
                   </p>
                   <p className="setup__check">
                     <svg viewBox="0 0 24 24">
                       <circle cx="12" cy="12" r="9" />
                       <path d="M8 12.5l2.5 2.5L16 9.5" />
                     </svg>
-                    Profile synced with FastAPI
+                    Full text gathered
                   </p>
                   <p className="setup__check">
                     <svg viewBox="0 0 24 24">
                       <circle cx="12" cy="12" r="9" />
                       <path d="M8 12.5l2.5 2.5L16 9.5" />
                     </svg>
-                    Preferences ready
+                    Duplicates removed
                   </p>
                 </div>
               </li>
@@ -1057,21 +1050,20 @@ export function LandingPage() {
                   2
                 </p>
                 <div className="setup__copy">
-                  <h3 className="m-text-5">
-                    Pick your lead language and community
-                  </h3>
+                  <h3 className="m-text-5">Investigate across languages</h3>
                   <p className="m-text-8">
-                    Choose English or Finnish as your lead language and follow
-                    the streams that matter locally.
+                    An agent extracts claims, looks for independent coverage in
+                    other languages and records what supports or contradicts
+                    each one.
                   </p>
                 </div>
                 <div className="setup__ui m-text-6" aria-hidden="true">
                   <p className="setup__option setup__option--on">
-                    English · Suomi
-                    <span>Selected</span>
+                    Claims extracted
+                    <span>Done</span>
                   </p>
                   <p className="setup__option">
-                    Bilingual coverage
+                    Independent coverage found
                     <span>EN + FI</span>
                   </p>
                   <p className="m-caption-2">
@@ -1082,7 +1074,7 @@ export function LandingPage() {
                       <i></i>
                     </span>
                     <span className="m-caption__text">
-                      Preferences saved to your profile.
+                      Disputed claim kept with both sources.
                     </span>
                   </p>
                 </div>
@@ -1095,10 +1087,10 @@ export function LandingPage() {
                   3
                 </p>
                 <div className="setup__copy">
-                  <h3 className="m-text-5">Read or curate</h3>
+                  <h3 className="m-text-5">File it and deliver it</h3>
                   <p className="m-text-8">
-                    Follow verified cross-language stories, or apply for a
-                    Community Editor role to curate topics and sources.
+                    The event joins the topic tree with its timeline, and each
+                    community&rsquo;s feed picks what matters to it.
                   </p>
                 </div>
                 <div className="setup__ui" aria-hidden="true">
@@ -1110,7 +1102,7 @@ export function LandingPage() {
                       <i></i>
                     </span>
                     <span className="m-caption__text">
-                      Story verified · four sources
+                      Event added to Europe · Policy
                     </span>
                   </p>
                   <p className="m-caption-2">
@@ -1121,7 +1113,7 @@ export function LandingPage() {
                       <i></i>
                     </span>
                     <span className="m-caption__text">
-                      Added to Local · Helsinki
+                      Timeline updated · 3 new reports
                     </span>
                   </p>
                 </div>
@@ -1150,9 +1142,9 @@ export function LandingPage() {
               <p className="m-text-8">
                 Still wondering about something?{" "}
                 <a className="m-link" href="#contact">
-                  Ask a person
+                  Tell the team
                 </a>{" "}
-                — the project team reads every note.
+                — editors read every note.
               </p>
             </div>
             <div className="faq__list">
@@ -1193,16 +1185,17 @@ export function LandingPage() {
             </div>
             <div className="start__copy">
               <h2 className="m-text-3" id="start-title">
-                Your next story can arrive in your language.
+                Follow the story, not just the headline.
               </h2>
               <p className="m-text-4">
-                Open the dashboard, pick English or Suomi, and read with the
-                sources in view.
+                Create an account, pick your language and topics, and read a
+                feed built from real sources, with the original link on every
+                story.
               </p>
               <div className="start__actions">
-                <LandingCta className="m-btn" label="Open your dashboard" />
+                <LandingCta className="m-btn" label="Open the dashboard" />
                 <a className="m-link m-text-6" href="#contact">
-                  Talk to the team
+                  Send feedback
                 </a>
               </div>
             </div>
@@ -1228,14 +1221,12 @@ export function LandingPage() {
                 id="contact-title"
                 data-8b-motion="captionIn"
               >
-                Talk to a person, in English or Finnish.
+                Help shape what gets built.
               </h2>
               <p className="m-text-4">
-                The project team answers by email and in the community forum.
-                We read English and Finnish.
-              </p>
-              <p className="m-text-7">
-                Contact details and response times are owner-configurable.
+                Tell us which sources, languages and checks matter to you.
+                Feedback goes straight to the editors, who read it in the
+                editor workspace.
               </p>
               <figure className="contact__photo">
                 <img
@@ -1252,29 +1243,26 @@ export function LandingPage() {
               </figure>
               <ul className="contact__ways">
                 <li>
-                  <p className="m-text-6">Email</p>
-                  <a
-                    className="m-link m-text-5"
-                    href="mailto:hello@kalevashorts.example"
-                  >
-                    hello@kalevashorts.example
+                  <p className="m-text-6">Readers</p>
+                  <a className="m-link m-text-5" href="/dashboard/feedback">
+                    Send feedback
                   </a>
                 </li>
                 <li>
-                  <p className="m-text-6">Community</p>
-                  <a className="m-link m-text-5" href="#contact-form">
-                    Open the forum
+                  <p className="m-text-6">Editors</p>
+                  <a className="m-link m-text-5" href="#faq">
+                    How editor access works
                   </a>
                 </li>
                 <li>
-                  <p className="m-text-6">Editorial</p>
-                  <a className="m-link m-text-5" href="#contact-form">
-                    Apply as a Community Editor
+                  <p className="m-text-6">Roadmap</p>
+                  <a className="m-link m-text-5" href="#setup">
+                    What is built next
                   </a>
                 </li>
               </ul>
             </div>
-            <ContactForm />
+            <ContactPanel />
           </div>
         </section>
       </main>
@@ -1291,10 +1279,10 @@ export function LandingPage() {
           <div className="footer__top">
             <div className="footer__pitch">
               <h2 className="m-text-5" id="footer-title">
-                Verified news, in Finnish and English.
+                News intelligence you can audit.
               </h2>
               <p className="m-text-4">
-                An open-source reading layer for Finnish–English reporting.
+                Multilingual news, with the evidence attached.
               </p>
               <a className="m-link m-text-6" href="#hero">
                 Back to the top
@@ -1311,17 +1299,17 @@ export function LandingPage() {
                   </li>
                   <li>
                     <a className="m-link-2" href="#calls">
-                      On the feed
+                      What&rsquo;s built
                     </a>
                   </li>
                   <li>
                     <a className="m-link-2" href="#rooms">
-                      Streams
+                      Events
                     </a>
                   </li>
                   <li>
                     <a className="m-link-2" href="#tune">
-                      Reading settings
+                      Your settings
                     </a>
                   </li>
                 </ul>
@@ -1330,16 +1318,13 @@ export function LandingPage() {
                 <h2 className="m-text-6">Support</h2>
                 <ul>
                   <li>
-                    <a
-                      className="m-link-2"
-                      href="mailto:hello@kalevashorts.example"
-                    >
-                      hello@kalevashorts.example
+                    <a className="m-link-2" href="/dashboard/feedback">
+                      Send feedback
                     </a>
                   </li>
                   <li>
                     <a className="m-link-2" href="#contact">
-                      Contact us
+                      Get involved
                     </a>
                   </li>
                   <li>
@@ -1359,12 +1344,12 @@ export function LandingPage() {
                 <ul>
                   <li>
                     <a className="m-link-2" href="#voices">
-                      Verification
+                      Principles
                     </a>
                   </li>
                   <li>
                     <a className="m-link-2" href="#setup">
-                      Getting started
+                      Roadmap
                     </a>
                   </li>
                   <li>
@@ -1398,30 +1383,29 @@ export function LandingPage() {
           </div>
           <div className="footer__legal m-text-7">
             <p>
-              © 2026 KalevaShorts contributors. Code under the MIT license.
+              © 2026 KalevaShorts.
             </p>
             <ul>
               <li>
-                <a className="m-link" href="#contact">
-                  Privacy
+                <a className="m-link" href="#voices">
+                  Principles
                 </a>
               </li>
               <li>
                 <a className="m-link" href="#faq">
-                  Terms
+                  FAQ
                 </a>
               </li>
               <li>
                 <a className="m-link" href="#hero">
-                  Accessibility
+                  Back to top
                 </a>
               </li>
             </ul>
           </div>
           <p className="footer__note m-text-7">
-            KalevaShorts is an open-source project. Translations are provided for
-            cross-language reading and should be checked against the linked
-            original when accuracy is critical.
+            KalevaShorts is in active development. Check the linked original
+            report when accuracy matters.
           </p>
         </div>
       </footer>

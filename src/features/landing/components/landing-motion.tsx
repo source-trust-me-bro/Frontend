@@ -385,6 +385,11 @@ export function LandingMotion() {
           },
         });
 
+        // Each news line gets its own stretch of scroll: it travels across, settles
+        // in the evidence panel and stays there before the next one starts.
+        const TRAVEL = 1;
+        const GAP = 0.35;
+
         pairs.forEach((pair, index) => {
           const row = pair[0];
           const shift = wide
@@ -400,8 +405,10 @@ export function LandingMotion() {
           cross.fromTo(
             pair,
             wide ? { x: shift } : { y: shift },
-            wide ? { x: 0, duration: 1 } : { y: 0, duration: 1 },
-            index * 0.8,
+            wide
+              ? { x: 0, duration: TRAVEL, ease: "power2.out" }
+              : { y: 0, duration: TRAVEL, ease: "power2.out" },
+            index * (TRAVEL + GAP),
           );
         });
 

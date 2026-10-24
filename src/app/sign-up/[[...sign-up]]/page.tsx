@@ -3,10 +3,12 @@ import { Suspense } from "react";
 import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
 
+import { AuthGate } from "@/features/auth/components/auth-gate";
+
 export const metadata: Metadata = {
   title: "Create account",
   description:
-    "Create a Clerk account for KalevaShorts and sync your bilingual Finnish–English news profile with FastAPI.",
+    "Create a KalevaShorts account to get a personalised, multilingual news feed.",
 };
 
 export const instant = false;
@@ -33,13 +35,15 @@ export default function SignUpPage() {
           <span className="workspace__brand-word">KalevaShorts</span>
         </Link>
         <p className="auth-page__copy">
-          Create an account to follow verified reporting in Finnish and
-          English, and keep your preferences in sync across devices.
+          Create an account to follow news sources in several languages, save
+          stories, and keep your preferences in sync across devices.
         </p>
         <Suspense
           fallback={<p className="auth-page__copy">Loading sign up…</p>}
         >
-          <SignUp />
+          <AuthGate>
+            <SignUp />
+          </AuthGate>
         </Suspense>
       </div>
     </main>

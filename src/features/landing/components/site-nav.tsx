@@ -6,11 +6,11 @@ import { LandingCta } from "./landing-cta";
 
 const navLinks = [
   { href: "#listen", label: "How it works" },
-  { href: "#calls", label: "On the feed" },
-  { href: "#rooms", label: "Streams" },
-  { href: "#voices", label: "Verification" },
+  { href: "#calls", label: "What's built" },
+  { href: "#rooms", label: "Events" },
+  { href: "#voices", label: "Principles" },
   { href: "#faq", label: "Questions" },
-  { href: "#contact", label: "Contact" },
+  { href: "#contact", label: "Get involved" },
 ];
 
 export function SiteNav() {
